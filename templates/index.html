@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <title>СтримХатаHiTech</title>
+    <meta name='viewport' content='width=device-width,initial-scale=1' />
+    <meta content='true' name='HandheldFriendly' />
+    <meta content='width' name='MobileOptimized' />
+    <meta content='yes' name='apple-mobile-web-app-capable' />
+
+    <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+    <script type="text/javascript" src="/static/js/jquery-3.3.1.js"></script>
+    <script>
+        var randVer = (new Date()).getTime();
+        document.write('<script src="/static/js/version.js?ver=' + randVer + '"\><\/script>');
+    </script>
+
+</head>
+
+<body>
+    
+<!--
+	<div style="position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 1001; background-color: white;" class="preloader">
+		<div id="cube-loader">
+			<div class="caption">
+				<div class="cube-loader">
+					<div class="cube loader-1"></div>
+					<div class="cube loader-2"></div>                                         
+					<div class="cube loader-4"></div>
+					<div class="cube loader-3"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+-->
+
+
+    <!-- ШАПКА САЙТА -->
+<!--
+    <div id="header"></div>
+    <script>
+        $("#header").load("header.html?ver=" + randVer);
+    </script>
+-->
+    <!-- ШАПКА САЙТА -->
+
+    <div class="container" style="min-height: calc(100vh - 50px); margin: 0 17vw;">
+        
+        <div style="padding-top: 50px;">
+            <div class="item-module" style="background-color:#ffa620; color: white; cursor: pointer;">
+                <div style="display: inline-block; padding: 10px;" onclick="Refresh()">Обновить</div>
+            </div>
+
+            <div class="item-module">
+                <div id="status-refresh" style="display: inline-block; padding: 10px;">Последнее обновление - 0 секунд назад</div>
+            </div>
+            
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Реле-модули 
+                <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockModule('container-module-reley')">
+            </div>
+        </div>
+
+        <div id="container-module-reley">
+            <!-- Место для вставки реле модулей -->
+            <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
+        </div>
+        
+        <div style="font-size: 20px; padding-bottom: 15px;">
+            Сенсор-модули
+            <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockModule('container-module-sensor')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
+        </div>
+        
+        <div id="container-module-sensor" style="position: relative;">
+        	<!-- Место для вставки сенсор модулей -->
+            <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
+        </div>
+        
+        <div style="font-size: 20px; padding-bottom: 15px;">
+            Планировщик задач
+            <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockPlan('container-plan')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
+        </div>
+        
+        <div id="container-plan" style="position: relative;">
+        	<!-- Место для вставки планировщик задач -->
+            <div class="item-module blick" style="padding: 10px;">Загрузка...</div> 
+        </div>
+
+
+        <!-- <div style="color: white;font-size: 40px;position: absolute;left: 50%;top: 50%;transform: translate(-50%, -50%);z-index: 1001;">В разработке</div>
+        	<div style="height: 100%; width: 100%; opacity: 0.1; background-color: black;position: absolute;z-index: 1000;border-radius: 10px;">
+        	</div> -->
+        
+        <div id="container-edit-form" style="display: none;">
+            <!--Блок редактирования модулей-->   
+            <div id="input-form-module-template" class="item-module">
+                <div style="display: inline-block; padding: 10px;">
+                    <div><input id="edit-name" class="input-field" value="" placeholder="Название модуля..." style="margin-bottom: 10px; width: 200px;"></div>
+                    <div><input id="edit-room" class="input-field" value="" placeholder="Название команты..." style="margin-bottom: 10px; width: 200px;"></div>
+                    <div><input id="edit-id" class="input-field" disabled value="" placeholder="ID модуля..." style="margin-bottom: 10px; width: 200px;"></div>
+                    <div><input id="edit-ip" class="input-field" value="" placeholder="IP модуля..." style="margin-bottom: 10px; width: 200px;"></div>
+                    <select id="edit-type" class="input-field" style="width: 210px;">
+                        <option value="Реле-розетка">Реле-розетка</option>
+                        <option value="Реле-свет">Реле-свет</option>
+                        <option value="Датчик температуры">Датчик температуры</option>
+                        <option value="Датчик газа">Датчик газа</option>
+                    </select>
+                </div>
+                <div style="display: inline-block; vertical-align: top;padding: 10px;">
+                    <img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditModule(this, 'edit')" style="padding-bottom: 10px;"><br>
+                    <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditModule(this, 'edit')" style="padding-bottom: 10px;"><br>
+                    <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeleteModule(this)">
+                </div>
+            </div>
+            <!--Блок редактирования модулей--> 
+
+            <!--Блок редактирования задач-->
+            <div  id="input-form-plan-template" class="item-module">
+                <div style="display: inline-block; padding: 10px;">
+                	<div><input id="edit-id" class="input-field" disabled placeholder="ID модуля..." style="margin-bottom: 10px; width: 265px;"></div>
+                    <div><input id="edit-ip" class="input-field" placeholder="IP модуля..." style="margin-bottom: 10px; width: 265px;"></div>
+                    <div>
+                        <input id="edit-time-start" class="input-field" type="time" style="margin-bottom: 10px; width: 120px;">
+                        <div style="display: inline-block;"> - </div>
+                        <input id="edit-time-end" class="input-field" type="time" style="margin-bottom: 10px; width: 120px;">
+                    </div>
+<!--                     <style>
+                    	.cbox-day {
+                    		display: none;
+                    	}
+                    	.cbox-day:checked + label {
+							color: red;
+							font-weight: bold;
+						}
+                    </style> -->
+                    <div style="margin-bottom: 10px">
+                        <input type="checkbox" id="ПН" class="cbox-day"/><label class="item-module item-checkbox">ПН</label>
+                        <input type="checkbox" id="ВТ" class="cbox-day"/><label class="item-module item-checkbox">ВТ</label>
+                        <input type="checkbox" id="СР" class="cbox-day"/><label class="item-module item-checkbox">СР</label>
+                        <input type="checkbox" id="ЧТ" class="cbox-day"/><label class="item-module item-checkbox">ЧТ</label>
+                        <input type="checkbox" id="ПТ" class="cbox-day"/><label class="item-module item-checkbox">ПТ</label>
+                        <input type="checkbox" id="СБ" class="cbox-day"/><label class="item-module item-checkbox">СБ</label>
+                        <input type="checkbox" id="ВС" class="cbox-day"/><label class="item-module item-checkbox">ВС</label>
+                    </div>
+                    <div><input id="edit-text-disc" class="input-field" value="" placeholder="Описание задачи..." style="width: 265px;"></div>
+                </div>
+                <div style="display: inline-block; vertical-align: top;padding: 10px;">
+                	<img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditPlan(this, 'edit')" style="padding-bottom: 10px;"><br>
+                    <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditPlan(this, 'edit')" style="padding-bottom: 10px;"><br>
+                    <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeletePlan(this)">
+                </div>
+            </div>
+            <!--Блок редактирования задач-->
+        </div>
+        
+    </div>
+
+    <div id="footer"></div>
+    <script>
+        $("#footer").load("/static/footer.html?ver=" + randVer, function() {
+            setTimeout(function() {
+                postLoad();
+                $('.preloader').fadeOut( 400, removePreLoader );
+            }, 2000);
+        });
+
+        function removePreLoader() {
+            $('.preloader').remove();
+        }
+        // Выполняем, когда все load (ajax) были выполнены.
+        function postLoad() {
+            var date = new Date();
+            document.querySelector('#copyright').innerHTML = 'Copyright &copy; 2020-' + date.getFullYear() + ', СтримХатаHiTech';
+            GetDataModule();
+            GetDataPlan();
+            setInterval(function() {
+              UpdageTimeAgo();
+            }, 5000);
+        }
+    </script>
+
+</body>
+
+</html>
