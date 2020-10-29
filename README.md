@@ -2,4 +2,8 @@
 ### Локальный сервер обработки операций умного дома
 
 ***
-![Начало работы с ботом](https://github.com/HoriFox/SmartHomeApi/blob/master/gitimg/Схема.png)
+### Схема системы
+![Схема](https://github.com/HoriFox/SmartHomeApi/blob/master/gitimg/Схема.png)
+
+### Интерфейс
+![Интерфейс](https://github.com/HoriFox/SmartHomeApi/blob/master/gitimg/Интерфейс.png)
