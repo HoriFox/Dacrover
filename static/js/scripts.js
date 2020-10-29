@@ -342,21 +342,22 @@ function SetDataModule(json) {
 		    type = 'relay';
 		}
 		if (json[i].ModuleType == 'Датчик температуры' || json[i].ModuleType == 'Датчик газа') {
-			contentModule = `<div style="font-size: 20px; padding-top: 8px; color: #e0641c;">9°</div>`;
+			contentModule = `<div style="font-size: 20px; padding-top: 8px; color: #e0641c;">Нет данных</div>`;
+            // 9°
 			type = 'sensor';
 		}
 
 		moduleCode = `<div class="item-module">
-		                <img class="item-image" src="${imgModule}">
-		                <div style="display: inline-block; padding: 10px;">
+                        <div id="ip">${json[i].ModuleIp}</div>
+                        <div id="type">${json[i].ModuleType}</div>
+		                <img class="item-image" src="${imgModule}" style="padding: 35px 0 10px 10px;">
+		                <div style="display: inline-block; padding: 35px 0 10px 10px;">
 		                    <div id="name">${json[i].ModuleName}</div>
 		                    <div id="room" style="color: #50b925;">${json[i].Room}</div>
 		                    <div id="id" style="display: none;">${json[i].ModuleId}</div>
-		                    <div id="ip" style="display: none;">${json[i].ModuleIp}</div>
-		                    <div id="type" style="font-size: 13px; color: #2574b9;">${json[i].ModuleType}</div>
 		                    ${contentModule}
 		                </div>
-		                <div style="display: inline-block; vertical-align: top;padding: 10px;">
+		                <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;">
 		                    <img class="button-image" src="/static/img/edit.png" onclick="EditModule(this)">
 		                </div>
 		            </div>`
@@ -409,16 +410,16 @@ function SetDataPlan(json) {
         }
 
         htmlCode += `<div class="item-module">
-                            <div style="display: inline-block; padding: 10px;">
+                            <div id="ip">${json[i].ModuleIp}</div>
+                            <div style="display: inline-block; padding: 35px 0 10px 10px;">
                                 <div id="time" style="font-size: 23px; color: #e0641c;">
                                     ${timeCode}
                                 </div>
                                 <div id="id" style="display: none;">${json[i].PlanId}</div>
-                                <div id="ip" style="display: none;">${json[i].ModuleIp}</div>
                                 ${daysCode}
                                 <div id="text-disc">${json[i].PlanDisc}</div>
                             </div>
-                            <div style="display: inline-block; vertical-align: top;padding: 10px;">
+                            <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;">
                                 <img class="button-image" src="/static/img/edit.png" onclick="EditPlan(this)">
                             </div>
                         </div>`

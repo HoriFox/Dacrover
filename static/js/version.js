@@ -8,4 +8,3 @@ var verCSS = 1;
 
 document.write('<link href="/static/css/style.css?ver=' + verCSS + '" rel="stylesheet">');
 document.write('<link href="/static/css/notifications.css?ver=' + verCSS + '" rel="stylesheet">');
-document.write('<link href="/static/css/pre-loader.css?ver=' + verCSS + '" rel="stylesheet">');

@@ -20,22 +20,6 @@
 
 <body>
     
-<!--
-	<div style="position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 1001; background-color: white;" class="preloader">
-		<div id="cube-loader">
-			<div class="caption">
-				<div class="cube-loader">
-					<div class="cube loader-1"></div>
-					<div class="cube loader-2"></div>                                         
-					<div class="cube loader-4"></div>
-					<div class="cube loader-3"></div>
-				</div>
-			</div>
-		</div>
-	</div>
--->
-
-
     <!-- ШАПКА САЙТА -->
 <!--
     <div id="header"></div>
@@ -159,21 +143,15 @@
     <div id="footer"></div>
     <script>
         $("#footer").load("/static/footer.html?ver=" + randVer, function() {
-            setTimeout(function() {
-                postLoad();
-                $('.preloader').fadeOut( 400, removePreLoader );
-            }, 2000);
+            postLoad();
         });
 
-        function removePreLoader() {
-            $('.preloader').remove();
-        }
         // Выполняем, когда все load (ajax) были выполнены.
         function postLoad() {
-            var date = new Date();
-            document.querySelector('#copyright').innerHTML = 'Copyright &copy; 2020-' + date.getFullYear() + ', СтримХатаHiTech';
             GetDataModule();
             GetDataPlan();
+            var date = new Date();
+            document.querySelector('#copyright').innerHTML = 'Copyright &copy; 2020-' + date.getFullYear() + ', СтримХатаHiTech';
             setInterval(function() {
               UpdageTimeAgo();
             }, 5000);
