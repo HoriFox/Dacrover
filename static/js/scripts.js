@@ -62,6 +62,9 @@ function EditModule(element) {
     editForm.querySelector('#edit-id').value = container.querySelector('#id').innerHTML;
     editForm.querySelector('#edit-ip').value = container.querySelector('#ip').innerHTML;
     editForm.querySelector('#edit-type').value = container.querySelector('#type').innerHTML;
+    editForm.querySelector('#edit-left').value = container.querySelector('#left').innerHTML;
+    editForm.querySelector('#edit-top').value = container.querySelector('#top').innerHTML;
+    editForm.querySelector('#edit-color').value = container.querySelector('#color').innerHTML;
     
     container.after(editForm);
 }
@@ -80,6 +83,11 @@ function ConfirmEditModule(buttonConfirm, type = 'create') {
     setData['id'] = idModule;
     setData['ip'] = editForm.querySelector('#edit-ip').value;
     setData['type'] = editForm.querySelector('#edit-type').value;
+
+    var left = editForm.querySelector('#edit-left').value;
+    var top = editForm.querySelector('#edit-top').value;
+    var color = editForm.querySelector('#edit-color').value;
+    setData['mapdata'] = left + '|' + top + '|' + color;
 
     var req = GetXmlHttp();
     req.onreadystatechange = function() {  
@@ -208,7 +216,7 @@ function CloseEditPlan(buttonCancel, type = 'create') {
 }
 
 function Refresh() {
-	GetDataModule();
+	GetDataModuleAndMap();
     GetDataPlan();
     timeAgo = 0;
     document.querySelector('#status-refresh').innerHTML = 'Последнее обновление - 0 секунд назад';
@@ -249,18 +257,6 @@ function ResetError(container) {
     container.classList.add('success'); 
 }
 
-// Публичная функция ЗАПРОСА К РЕЛЕ
-function SwitchRelay(buttonSwitch, value) {
-	container = buttonSwitch.parentNode.parentNode;
-	var ip = container.querySelector('#ip').innerHTML;
-	if (value == 0) {
-        SendRequestRelay(ip, 0);
-	} else {
-        SendRequestRelay(ip, 1);
-	}
-}
-
-// Исполнитель ЗАПРОС К РЕЛЕ
 function SendRequestRelay(ip, value) {
     jProgress.start();
     var xhr = new XMLHttpRequest();
@@ -276,7 +272,7 @@ function SendRequestRelay(ip, value) {
         }
     }
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify({"type":"relay", "ip":ip.toString(), "value":value.toString()}));
+    xhr.send(JSON.stringify({"type":"relay", "ip":ip, "value":value}));
 }
 
 // Публичная функция ЗАПРОСА К ДАТЧИКУ
@@ -307,13 +303,13 @@ function SendRequestSensor(ip) {
     xhr.send(JSON.stringify({"type":"sensor", "ip":ip.toString()}));
 }
 
-function GetDataModule() {
+function GetDataModuleAndMap() {
     var req = GetXmlHttp();
     req.onreadystatechange = function() {  
         if (req.readyState == 4) { 
             if(req.status == 200) {
                 var json = JSON.parse(req.responseText);
-                SetDataModule(json);
+                SetDataModuleAndMap(json);
             }
             else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
         }
@@ -322,9 +318,11 @@ function GetDataModule() {
     SendRequest(req, json_string);
 }
 
-function SetDataModule(json) {
+function SetDataModuleAndMap(json) {
+    var container_map = document.querySelector('#container-map');
 	var container_relay = document.querySelector('#container-module-reley');
 	var container_sensor = document.querySelector('#container-module-sensor');
+    htmlCodeMap = '';
 	htmlCodeRelay = '';
 	htmlCodeSensor = '';
 	for (var i = 0; i < json.length; i++) {
@@ -337,8 +335,8 @@ function SetDataModule(json) {
 
 		var contentModule = ''
 		if (json[i].ModuleType == 'Реле-свет' || json[i].ModuleType == 'Реле-розетка') {
-			contentModule = `<div class="ibutton ibutton-on" style="margin-top: 5px;" onclick="SwitchRelay(this, 1)">Включить</div>
-		                    <div class="ibutton ibutton-off" style="margin-top: 5px;" onclick="SwitchRelay(this, 0)">Выключить</div>`;
+			contentModule = `<div class="ibutton ibutton-on" style="margin-top: 5px;" onclick="SendRequestRelay('${json[i].ModuleIp}', '1')">Включить</div>
+		                    <div class="ibutton ibutton-off" style="margin-top: 5px;" onclick="SendRequestRelay('${json[i].ModuleIp}', '0')">Выключить</div>`;
 		    type = 'relay';
 		}
 		if (json[i].ModuleType == 'Датчик температуры' || json[i].ModuleType == 'Датчик газа') {
@@ -347,24 +345,34 @@ function SetDataModule(json) {
 			type = 'sensor';
 		}
 
-		moduleCode = `<div class="item-module">
-                        <div id="ip">${json[i].ModuleIp}</div>
-                        <div id="type">${json[i].ModuleType}</div>
-		                <img class="item-image" src="${imgModule}" style="padding: 35px 0 10px 10px;">
-		                <div style="display: inline-block; padding: 35px 0 10px 10px;">
-		                    <div id="name">${json[i].ModuleName}</div>
-		                    <div id="room" style="color: #50b925;">${json[i].Room}</div>
-		                    <div id="id" style="display: none;">${json[i].ModuleId}</div>
-		                    ${contentModule}
-		                </div>
-		                <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;">
-		                    <img class="button-image" src="/static/img/edit.png" onclick="EditModule(this)">
-		                </div>
-		            </div>`
+        var mapData = json[i].MapData.split('|');
+
+		var moduleCode = `<div class="item-module">
+                            <div id="ip">${json[i].ModuleIp}</div>
+                            <div id="type">${json[i].ModuleType}</div>
+    		                <img class="item-image" src="${imgModule}" style="padding: 35px 0 10px 10px;">
+    		                <div style="display: inline-block; padding: 35px 0 10px 10px;">
+    		                    <div id="name">${json[i].ModuleName}</div>
+    		                    <div id="room" style="color: #50b925;">${json[i].Room}</div>
+    		                    <div id="id" style="display: none;">${json[i].ModuleId}</div>
+                                <div id="left" style="display: none;">${mapData[0]}</div>
+                                <div id="top" style="display: none;">${mapData[1]}</div>
+                                <div id="color" style="display: none;">${mapData[2]}</div>
+    		                    ${contentModule}
+    		                </div>
+    		                <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;">
+    		                    <img class="button-image" src="/static/img/edit.png" onclick="EditModule(this)">
+    		                </div>
+    		            </div>`;
+
+        htmlCodeMap += `<div class="marker" id="marker${json[i].ModuleId}" style="left: ${mapData[0]}px; top: ${mapData[1]}px; background-color:${mapData[2]};">
+                        <div class="marker-desc">${json[i].ModuleName} ${contentModule}</div>
+                    </div>`
 
 		if (type == 'relay') htmlCodeRelay += moduleCode;
 		if (type == 'sensor') htmlCodeSensor += moduleCode;
 	}
+    container_map.innerHTML = htmlCodeMap;
 	container_relay.innerHTML = htmlCodeRelay;
 	container_sensor.innerHTML = htmlCodeSensor;
 }
@@ -425,4 +433,19 @@ function SetDataPlan(json) {
                         </div>`
     }
     container_plan.innerHTML = htmlCode;
+}
+
+function UpdateMapParameter(element, nameElement) {
+    editForm = element.parentNode.parentNode;
+    var id = editForm.querySelector('#edit-id').value;
+    var marker = document.querySelector('#marker' + id);
+    if (nameElement == 'left') {
+        marker.style.left = element.value + 'px';
+    }
+    if (nameElement == 'top') {
+        marker.style.top = element.value + 'px';
+    }
+    if (nameElement == 'color') {
+        marker.style['background-color'] = element.value;
+    }
 }

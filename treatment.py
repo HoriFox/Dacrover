@@ -50,10 +50,11 @@ class Api():
 
     def data_transfer(self, request_data):
 
-        link_bd = DBConnection(user=self.api_config['user_mysql'], 
-                                password=self.api_config['password_mysql'],
-                                host=self.api_config['host_mysql'], 
-                                database=self.api_config['database_mysql'])
+        link_bd = DBConnection(user=self.api_config['user_mysql'],
+                               password=self.api_config['password_mysql'],
+                               host=self.api_config['host_mysql'],
+			       port=self.api_config['port_mysql'],
+                               database=self.api_config['database_mysql'])
 
         function = request_data['function']
         if function == 'get_ip_by_name':
@@ -72,7 +73,8 @@ class Api():
                                     ModuleName=request_data['name'], 
                                     Room=request_data['room'], 
                                     ModuleIp=request_data['ip'], 
-                                    ModuleType=request_data['type'])
+                                    ModuleType=request_data['type'],
+				    MapData=request_data['mapdata'])
             return query, False
 
         if function == 'delete_module':

@@ -17,7 +17,7 @@ class FlaskServer (Flask):
 
     def load_config(self, path):
         if not path:
-            path='/etc/assol/api.config.json'
+            path='api.config.json'
         return load_json(path)
 
     def setup_route(self):

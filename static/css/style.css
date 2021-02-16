@@ -112,3 +112,27 @@ body {
     from { transform: translateX(-4em) skewX(-45deg) }
     to { transform: translateX(19em) skewX(-45deg) }
 }
+
+/*Маркеры*/
+.marker {
+    height: 15px; 
+    width: 15px; 
+    border-radius: 10px; 
+    position: absolute; 
+}
+.marker-desc {
+    display: none;
+    background-color: #f3f3f3;
+    left: 7px;
+    top: 7px;
+    position: absolute;
+    padding: 10px;
+    min-width: 140px;
+    border: 1px solid #dedede;
+    border-radius: 5px;
+    z-index: 1;
+}
+.marker:hover .marker-desc {
+    display: block;
+}
+/*Маркеры*/

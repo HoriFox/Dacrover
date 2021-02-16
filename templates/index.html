@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>СтримХатаHiTech</title>
+    <title>Панель управления</title>
     <meta name='viewport' content='width=device-width,initial-scale=1' />
     <meta content='true' name='HandheldFriendly' />
     <meta content='width' name='MobileOptimized' />
@@ -39,11 +39,20 @@
             <div class="item-module">
                 <div id="status-refresh" style="display: inline-block; padding: 10px;">Последнее обновление - 0 секунд назад</div>
             </div>
-            
-            <div style="font-size: 20px; padding-bottom: 15px;">
-                Реле-модули 
-                <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockModule('container-module-reley')">
-            </div>
+        </div>
+
+        <div style="font-size: 20px; padding-bottom: 15px;">
+            Квартира
+        </div>
+
+        <div id="container-map" style="background-image: url(/static/img/map/map.png); background-position: center center; background-repeat: no-repeat; background-size: contain; width: 400px; height: 400px; background-color: #f3f3f3; border-radius: 10px; margin-bottom: 30px; position: relative;">
+            <!-- Место для вставки реле модулей -->
+            <div class="item-module" style="padding: 10px;color: #737373;">Загрузка...</div>
+        </div>
+        
+        <div style="font-size: 20px; padding-bottom: 15px;">
+            Реле-модули 
+            <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockModule('container-module-reley')">
         </div>
 
         <div id="container-module-reley">
@@ -84,12 +93,17 @@
                     <div><input id="edit-room" class="input-field" value="" placeholder="Название команты..." style="margin-bottom: 10px; width: 200px;"></div>
                     <div><input id="edit-id" class="input-field" disabled value="" placeholder="ID модуля..." style="margin-bottom: 10px; width: 200px;"></div>
                     <div><input id="edit-ip" class="input-field" value="" placeholder="IP модуля..." style="margin-bottom: 10px; width: 200px;"></div>
-                    <select id="edit-type" class="input-field" style="width: 210px;">
+                    <select id="edit-type" class="input-field" style="margin-bottom: 10px; width: 210px;">
                         <option value="Реле-розетка">Реле-розетка</option>
                         <option value="Реле-свет">Реле-свет</option>
                         <option value="Датчик температуры">Датчик температуры</option>
                         <option value="Датчик газа">Датчик газа</option>
                     </select>
+                    <div>
+                        <input id="edit-left" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'left')" placeholder="Left..." style="margin-bottom: 10px; width: 92px;">
+                        <input id="edit-top" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'top')" placeholder="Top..." style="margin-bottom: 10px; width: 93px;">
+                    </div>
+                    <div><input id="edit-color" class="input-field" value="" oninput="UpdateMapParameter(this, 'color')" placeholder="Цвет маркера..." style="width: 200px;"></div>
                 </div>
                 <div style="display: inline-block; vertical-align: top;padding: 10px;">
                     <img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditModule(this, 'edit')" style="padding-bottom: 10px;"><br>
@@ -148,7 +162,7 @@
 
         // Выполняем, когда все load (ajax) были выполнены.
         function postLoad() {
-            GetDataModule();
+            GetDataModuleAndMap();
             GetDataPlan();
             var date = new Date();
             document.querySelector('#copyright').innerHTML = 'Copyright &copy; 2020-' + date.getFullYear() + ', СтримХатаHiTech';
