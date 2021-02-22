@@ -15,19 +15,20 @@ class FlaskServer (Flask):
 		self.logger.setLevel(logging.DEBUG)
 		self.api = Api(self.api_config, self.logger)
 
-	def load_config(self, path):
+	def load_config(self, input_path=None):
 		config = {"user_mysql":"smarthomeuser",
 			"password_mysql":"password",
 			"host_mysql":"127.0.0.1",
 			"port_mysql":3306,
 			"database_mysql":"smarthome"}
-		path='/etc/assol/api.config.json'
+		path = input_path or '/etc/assol/api.config.json'
 		try:
 			with open(path) as file:
 				data = load_json(path)
 				config.update(data)
 		except:
 			eprint('[!]Cant load config from %s' % path)
+		eprint('Loaded config: %s' % config)
 		return config
 
 	def setup_route(self):
