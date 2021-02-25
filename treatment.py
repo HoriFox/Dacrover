@@ -78,6 +78,8 @@ class Api():
         if function == 'get_ip_by_name':
             relayname = request_data['relayname']
             ip_json = link_bd.select('modules', where="`ModuleName` LIKE '%" + relayname + "%'", json=True)
+            if len(ip_json) == 0:
+                ip_json = link_bd.select('modules', where="`ModuleName` LIKE '%" + relayname[:-1] + "%'", json=True)
             return ip_json, True
 
         if function == 'get_list_module':

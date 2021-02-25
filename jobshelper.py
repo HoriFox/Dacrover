@@ -4,10 +4,10 @@ class SchedulerManager():
     def __init__(self, api, plan_list, logger):
         self.logger = logger
         self.api = api
-        cron = CronTab(user=True)
-        job = cron.new(command='echo hello_world')
-        job.minute.every(1)
-        cron.write()
+        #cron = CronTab(user=True)
+        #job = cron.new(command='echo hello_world')
+        #job.minute.every(1)
+        #cron.write()
         # При первом запуске подгружаем все задания в очередь
         self.load_plan(plan_list)
 
