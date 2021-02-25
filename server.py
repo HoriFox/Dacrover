@@ -15,26 +15,41 @@ class FlaskServer (Flask):
 		self.logger.setLevel(logging.DEBUG)
 		self.api = Api(self.api_config, self.logger)
 
-	def load_config(self, input_path=None):
+	def load_config(self, path):
 		config = {"user_mysql":"smarthomeuser",
 			"password_mysql":"password",
 			"host_mysql":"127.0.0.1",
 			"port_mysql":3306,
 			"database_mysql":"smarthome"}
-		path = input_path or '/etc/assol/api.config.json'
+		load_status = True
 		try:
 			with open(path) as file:
 				data = load_json(path)
 				config.update(data)
-		except:
-			eprint('[!]Cant load config from %s' % path)
-		eprint('Loaded config: %s' % config)
+		except Exception as err:
+			eprint('\n[!]Cant load config from %s: %s' % (path, err))
+			eprint('[!]Load default config\n')
+			load_status = False
+		if load_status:
+			eprint('\n[!]Load config from %s\n' % path)
+		self.show_load_log('config', config)
+		eprint('')
 		return config
+
+	def show_load_log(self, name, config):
+		"""
+		Вывод списка загруженных конфигураций.
+		Password выводится после предварительного hash()
+		"""
+		for key in config:
+			value = hash(config[key]) if ('password' in key) else config[key]
+			eprint('[C]%s = %s' % (key, value))
 
 	def setup_route(self):
 		self.add_url_rule('/', "run_api", self.api.run_api, methods=['POST'])
 		self.add_url_rule('/', "root", self.api.root, methods=['GET'])
 		self.add_url_rule('/data', "data_transfer_request", self.api.data_transfer_request, methods=['POST'])
+
 
 def create_app(config_file):
 	app = FlaskServer('FlaskServer', config_file)

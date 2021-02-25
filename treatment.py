@@ -3,7 +3,7 @@ import requests
 from mysqlhelper import DBConnection
 from jobshelper import SchedulerManager
 
-class Api():  
+class Api():
     def __init__(self, config, logger):
         self.api_config = config
         self.logger = logger
@@ -12,6 +12,10 @@ class Api():
         self.scheduler = SchedulerManager(self, plan_list, self.logger)
 
     def run_api(self, _request = None):
+        """
+        ROUTE 1
+        Запуск методы API, а именно выполнение действий над устройствами
+        """
         self.logger.info('NEW API REQUEST -->')
         request_data = _request if (_request != None) else request.json
 
@@ -40,23 +44,37 @@ class Api():
             # return 'null' + ip_dev
 
     def root(self):
+        """
+        ROUTE 2
+        Выдача по запросу страницы управления
+        """
         return render_template('index.html')
 
     def data_transfer_request(self):
+        """
+        ROUTE 3
+        Котейнер метода выдачи и редактирования данных.
+        Данный метод является оболочкой data_transfer т.к. тот содержит
+        множество return с разными типами вывода. Здесь мы узнаём тип
+        и отправляем соотвествующий ответ.
+        """
         self.logger.info('NEW API REQUEST -->')
         request_data = request.json
         data, isjson = self.data_transfer(request_data)
         return jsonify(data) if isjson else data
 
     def data_transfer(self, request_data):
-
+        """
+        В зависимости от название функции выбираем нужный тип работы с данными.
+        return [данные],[is_json?]
+        """
         link_bd = DBConnection(user=self.api_config['user_mysql'],
                                password=self.api_config['password_mysql'],
                                host=self.api_config['host_mysql'],
-			       port=self.api_config['port_mysql'],
+                               port=self.api_config['port_mysql'],
                                database=self.api_config['database_mysql'])
-
         function = request_data['function']
+
         if function == 'get_ip_by_name':
             relayname = request_data['relayname']
             ip_json = link_bd.select('modules', where="`ModuleName` LIKE '%" + relayname + "%'", json=True)
@@ -68,11 +86,11 @@ class Api():
 
         if function == 'set_module':
             idModule = None if request_data['id'] == 'NULL' else request_data['id']
-            query = link_bd.insert('modules', True, 'ChangeTime', 
-                                    ModuleId=idModule, 
-                                    ModuleName=request_data['name'], 
-                                    Room=request_data['room'], 
-                                    ModuleIp=request_data['ip'], 
+            query = link_bd.insert('modules', True, 'ChangeTime',
+                                    ModuleId=idModule,
+                                    ModuleName=request_data['name'],
+                                    Room=request_data['room'],
+                                    ModuleIp=request_data['ip'],
                                     ModuleType=request_data['type'],
 				    MapData=request_data['mapdata'])
             return query, False
@@ -88,13 +106,13 @@ class Api():
 
         if function == 'set_plan':
             id_plan = None if request_data['id'] == 'NULL' else request_data['id']
-            query = link_bd.insert('plans', True, 'ChangeTime', 
-                                    PlanId=id_plan, 
-                                    PlanDisc=request_data['disc'], 
-                                    ModuleIp=request_data['ip'], 
-                                    PlanDays=request_data['days'], 
+            query = link_bd.insert('plans', True, 'ChangeTime',
+                                    PlanId=id_plan,
+                                    PlanDisc=request_data['disc'],
+                                    ModuleIp=request_data['ip'],
+                                    PlanDays=request_data['days'],
                                     PlanTime=request_data['time'])
-            self.scheduler.create_plan(str(id_plan), request_data['days'], 
+            self.scheduler.create_plan(str(id_plan), request_data['days'],
                                         request_data['time'], 'relay', request_data['ip'])
             return query, False
 
