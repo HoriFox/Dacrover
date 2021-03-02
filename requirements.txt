@@ -1,7 +1,7 @@
 certifi>=2020.12.5
 chardet>=4.0.0
 click>=7.1.2
-crontab>=0.22.9
+python-crontab>=2.5.1
 Flask>=1.1.2
 idna>=2.10
 itsdangerous>=1.1.0
