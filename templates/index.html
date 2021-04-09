@@ -41,8 +41,60 @@
             </div>
         </div>
 
-        <div style="font-size: 20px; padding-bottom: 15px;">
-            Квартира
+        <script>
+            isChangePositionMarker = false
+            function ChangeStatePositionMarker(element) {
+                if (isChangePositionMarker) {
+                    element.innerHTML = "Переместить маркеры";
+                    element.style['background-color'] = "#e25d5d";
+                    ResetSelect();
+                    SavePositionMarker();
+                    isChangePositionMarker = false;
+                } else {
+                    element.innerHTML = "Сохранить";
+                    element.style['background-color'] = "#67d06d";
+                    isChangePositionMarker = true;
+                }
+            }
+            function ResetSelect(){
+                var c = document.getElementById("container-map").children;
+                var i;
+                for (i = 0; i < c.length; i++) {
+                    c[i].style.border = 'none';
+                    c[i].style.margin = '0px';
+                }
+            }
+            var dragObject, mouseOffset;
+            function mouseUp(){
+                dragObject.onmousemove = null;
+                dragObject.onmouseup = null;
+                dragObject.querySelector('.marker-desc').style.display = null;
+                dragObject = null;
+                mouseOffset = {x:0, y:0};
+            }
+            function mouseMove(element){
+                if (dragObject) {
+                    dragObject.style.top = element.pageY - mouseOffset.y + 'px';
+                    dragObject.style.left = element.pageX - mouseOffset.x + 'px';
+                }
+            }
+            function mouseDown(element) {
+                if (!isChangePositionMarker) return;
+                ResetSelect();
+                dragObject = element;
+                element.style.border = '1px solid #57e0ff';
+                element.style.margin = '-1px 0 0 -1px';
+                element.querySelector('.marker-desc').style.display = 'none';
+                mouseOffset = {x:event.pageX - dragObject.offsetLeft, y:event.pageY - dragObject.offsetTop};
+                dragObject.onmousemove = mouseMove;
+                dragObject.onmouseup = mouseUp;
+            }
+        </script>
+        <div>
+            <div style="font-size: 20px; padding-bottom: 15px;">Квартира</div>             
+            <div class="item-module" style="background-color:#e25d5d; color: white; cursor: pointer;margin-bottom: 5px;">
+                <div style="display: inline-block; padding: 4px;font-size: 14px;border-radius: 5px;" onclick="ChangeStatePositionMarker(this)">Переместить маркеры</div>
+            </div>
         </div>
 
         <div id="container-map" style="background-image: url(/static/img/map/map.png); background-position: center center; background-repeat: no-repeat; background-size: contain; width: 400px; height: 400px; background-color: #f3f3f3; border-radius: 10px; margin-bottom: 30px; position: relative;">

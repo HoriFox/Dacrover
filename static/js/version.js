@@ -1,4 +1,4 @@
-var version = 3;
+var version = 5;
 
 document.write('<script type="text/javascript" src="/static/js/scripts.js?ver=' + version + '"></script></script>');
 document.write('<script type="text/javascript" src="/static/js/notifications.js?ver=' + version + '"></script>');

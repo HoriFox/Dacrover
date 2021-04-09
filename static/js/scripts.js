@@ -347,7 +347,7 @@ function SetDataModuleAndMap(json) {
 
         var mapData = json[i].MapData.split('|');
 
-		var moduleCode = `<div class="item-module">
+		var moduleCode = `<div class="item-module" id="module-${json[i].ModuleId}">
                             <div id="ip">${json[i].ModuleIp}</div>
                             <div id="type">${json[i].ModuleType}</div>
     		                <img class="item-image" src="${imgModule}" style="padding: 35px 0 10px 10px;">
@@ -365,7 +365,7 @@ function SetDataModuleAndMap(json) {
     		                </div>
     		            </div>`;
 
-        htmlCodeMap += `<div class="marker" id="marker${json[i].ModuleId}" style="left: ${mapData[0]}px; top: ${mapData[1]}px; background-color:${mapData[2]};">
+        htmlCodeMap += `<div class="marker" onmousedown="mouseDown(this)" id="marker-${json[i].ModuleId}" style="left: ${mapData[0]}px; top: ${mapData[1]}px; background-color:${mapData[2]};">
                         <div class="marker-desc">${json[i].ModuleName} ${contentModule}</div>
                     </div>`
 
@@ -375,6 +375,44 @@ function SetDataModuleAndMap(json) {
     container_map.innerHTML = htmlCodeMap;
 	container_relay.innerHTML = htmlCodeRelay;
 	container_sensor.innerHTML = htmlCodeSensor;
+}
+
+function SavePositionMarker() {
+	var childrenMap = document.getElementById("container-map").children;
+	for (var i = 0; i < childrenMap.length; i++) {
+		var id = childrenMap[i].id.split('-')[1];
+		var marker = document.querySelector('#marker-' + id);
+		var form = document.querySelector('#module-' + id);
+
+		var left = parseInt(marker.style.left);
+	    var top = parseInt(marker.style.top);
+
+	    if (form.querySelector('#left').innerHTML == left && 
+	    	form.querySelector('#top').innerHTML == top) continue;
+
+	    form.querySelector('#left').innerHTML = left;
+	    form.querySelector('#top').innerHTML = top;
+
+	    setData = {}
+	    setData['function'] = 'set_module';
+	    setData['name'] = form.querySelector('#name').innerHTML;
+	    setData['room'] = form.querySelector('#room').innerHTML;
+	    setData['id'] = id;
+	    setData['ip'] = form.querySelector('#ip').innerHTML;
+	    setData['type'] = form.querySelector('#type').innerHTML;
+
+	    var color = form.querySelector('#color').innerHTML;
+	    setData['mapdata'] = left + '|' + top + '|' + color;
+
+		var req = GetXmlHttp();
+	    req.onreadystatechange = function() {  
+	        if (req.readyState == 4) { 
+	            if(req.status != 200) { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+	        }
+	    }
+	    var json_string = JSON.stringify(setData);
+	    SendRequest(req, json_string);
+	}
 }
 
 function GetDataPlan() {
@@ -438,7 +476,7 @@ function SetDataPlan(json) {
 function UpdateMapParameter(element, nameElement) {
     editForm = element.parentNode.parentNode;
     var id = editForm.querySelector('#edit-id').value;
-    var marker = document.querySelector('#marker' + id);
+    var marker = document.querySelector('#marker-' + id);
     if (nameElement == 'left') {
         marker.style.left = element.value + 'px';
     }
