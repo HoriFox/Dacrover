@@ -16,11 +16,14 @@ class FlaskServer (Flask):
 		self.api = Api(self.api_config, self.logger)
 
 	def load_config(self, path):
-		config = {"user_mysql":"smarthomeuser",
-			"password_mysql":"password",
-			"host_mysql":"127.0.0.1",
-			"port_mysql":3306,
-			"database_mysql":"smarthome"}
+		config = {
+			"user_mysql": "smarthomeuser",
+			"password_mysql": "password",
+			"host_mysql": "127.0.0.1",
+			"port_mysql": 3306,
+			"database_mysql": "smarthome",
+			"smarthome_port": 4050,
+		}
 		load_status = True
 		try:
 			with open(path) as file:

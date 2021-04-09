@@ -77,6 +77,7 @@ class Api():
 		"""
 		self.logger.info('NEW API REQUEST -->')
 		request_data = request.json
+		self.logger.debug('Request data: ', request_data)
 		data, isjson = self.data_transfer(request_data)
 		return jsonify(data) if isjson else data
 

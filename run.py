@@ -11,4 +11,4 @@ args = parser.parse_args()
 app = create_app(args.config)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=4060)
+    app.run(host="0.0.0.0", port=app.api_config['smarthome_port'])
