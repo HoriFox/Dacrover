@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS `smarthome`;
-CREATE DATABASE `smarthome`;
-USE `smarthome`;
+DROP DATABASE IF EXISTS `dacrover`;
+CREATE DATABASE `dacrover`;
+USE `dacrover`;
 
 DROP TABLE IF EXISTS `modules`;
 CREATE TABLE `modules` (

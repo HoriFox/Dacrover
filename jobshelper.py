@@ -36,7 +36,7 @@ class CronManager():
 	def create_plan(self, plan_id, plan_days, plan_time, module_type, module_ip):
 		# Чтобы избежать дублирование - чистим
 		self.delete_plan(plan_id)
-		
+
 		print('[!]Load plan:\n')
 		print('[P]Id:', plan_id, '\n' +
 				'[P]Days:',  plan_days, '\n' +
@@ -56,7 +56,7 @@ class CronManager():
 		job = self.cron.new(comment=id_job_start,
 							command='python3 %s/jobworker.py %s %s %s %s' % 
 													(pathlib.Path(__file__).parent.absolute(),
-													self.api_config['port_smarthome'],
+													self.api_config['dacrover_port'],
 													module_type,
 													module_ip,
 													1))
@@ -69,7 +69,7 @@ class CronManager():
 			job = self.cron.new(comment=id_job_end,
 								command='python3 %s/jobworker.py %s %s %s %s' % 
 														(pathlib.Path(__file__).parent.absolute(),
-														self.api_config['port_smarthome'],
+														self.api_config['dacrover_port'],
 														module_type,
 														module_ip,
 														0))

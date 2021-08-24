@@ -17,12 +17,12 @@ class FlaskServer (Flask):
 
 	def load_config(self, path):
 		config = {
-			"user_mysql": "smarthomeuser",
+			"user_mysql": "dacroveruser",
 			"password_mysql": "password",
 			"host_mysql": "127.0.0.1",
 			"port_mysql": 3306,
-			"database_mysql": "smarthome",
-			"smarthome_port": 4050,
+			"database_mysql": "dacrover",
+			"dacrover_port": 4050,
 		}
 		load_status = True
 		try:
