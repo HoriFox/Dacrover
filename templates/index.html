@@ -19,191 +19,202 @@
 </head>
 
 <body>
-    
-    <!-- ШАПКА САЙТА -->
-<!--
-    <div id="header"></div>
-    <script>
-        $("#header").load("header.html?ver=" + randVer);
-    </script>
--->
-    <!-- ШАПКА САЙТА -->
 
     <div class="container" style="min-height: calc(100vh - 50px); margin: 0 17vw;">
         
-        <div style="padding-top: 50px;">
-            <div class="item-module" style="background-color:#ffa620; color: white; cursor: pointer;">
-                <div style="display: inline-block; padding: 10px;" onclick="Refresh()">Обновить</div>
-            </div>
-
-            <div class="item-module">
-                <div id="status-refresh" style="display: inline-block; padding: 10px;">Последнее обновление - 0 секунд назад</div>
-            </div>
-        </div>
-
+        <!-- ШАПКА САЙТА -->
+        <div id="header"></div>
         <script>
-            isChangePositionMarker = false
-            function ChangeStatePositionMarker(element) {
-                if (isChangePositionMarker) {
-                    element.innerHTML = "Переместить маркеры";
-                    element.style['background-color'] = "#e25d5d";
-                    ResetSelect();
-                    SavePositionMarker();
-                    isChangePositionMarker = false;
-                } else {
-                    element.innerHTML = "Сохранить";
-                    element.style['background-color'] = "#67d06d";
-                    isChangePositionMarker = true;
-                }
-            }
-            function ResetSelect(){
-                var c = document.getElementById("container-map").children;
-                var i;
-                for (i = 0; i < c.length; i++) {
-                    c[i].style.border = 'none';
-                    c[i].style.margin = '0px';
-                }
-            }
-            var dragObject, mouseOffset;
-            function mouseUp(){
-                dragObject.onmousemove = null;
-                dragObject.onmouseup = null;
-                dragObject.querySelector('.marker-desc').style.display = null;
-                dragObject = null;
-                mouseOffset = {x:0, y:0};
-            }
-            function mouseMove(element){
-                if (dragObject) {
-                    dragObject.style.top = element.pageY - mouseOffset.y + 'px';
-                    dragObject.style.left = element.pageX - mouseOffset.x + 'px';
-                }
-            }
-            function mouseDown(element) {
-                if (!isChangePositionMarker) return;
-                ResetSelect();
-                dragObject = element;
-                element.style.border = '1px solid #57e0ff';
-                element.style.margin = '-1px 0 0 -1px';
-                element.querySelector('.marker-desc').style.display = 'none';
-                mouseOffset = {x:event.pageX - dragObject.offsetLeft, y:event.pageY - dragObject.offsetTop};
-                dragObject.onmousemove = mouseMove;
-                dragObject.onmouseup = mouseUp;
-            }
+            $("#header").load("/static/header.html?ver=" + randVer);
         </script>
-        <div>
-            <div style="font-size: 20px; padding-bottom: 15px;">Квартира</div>             
-            <div class="item-module" style="background-color:#e25d5d; color: white; cursor: pointer;margin-bottom: 5px;">
-                <div style="display: inline-block; padding: 4px;font-size: 14px;border-radius: 5px;" onclick="ChangeStatePositionMarker(this)">Переместить маркеры</div>
+        <!-- ШАПКА САЙТА -->
+
+        <!-- Дом -->
+        <div id="tab1" class="nav-tab show-nav-tab">
+            <div>
+                <div class="item-module" style="background-color:#ffa620; color: white; cursor: pointer;">
+                    <div style="display: inline-block; padding: 10px;" onclick="Refresh()">Обновить</div>
+                </div>
+
+                <div class="item-module">
+                    <div id="status-refresh" style="display: inline-block; padding: 10px;">Последнее обновление - 0 секунд назад</div>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size: 20px; padding-bottom: 15px;">Квартира</div>             
+                <div class="item-module" style="background-color:#e25d5d; color: white; cursor: pointer;margin-bottom: 5px;">
+                    <div style="display: inline-block; padding: 4px;font-size: 14px;border-radius: 5px;" onclick="ChangeStatePositionMarker(this)">Переместить маркеры</div>
+                </div>
+            </div>
+
+            <div id="container-map" style="background-image: url(/static/img/map/map.png); background-position: center center; background-repeat: no-repeat; background-size: contain; width: 400px; height: 400px; background-color: #f3f3f3; border-radius: 10px; margin-bottom: 30px; position: relative;">
+                <!-- Место для вставки реле модулей -->
+                <div class="item-module" style="padding: 10px;color: #737373;">Загрузка...</div>
+            </div>
+            
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Реле-модули 
+                <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockModule('container-module-reley')">
+            </div>
+
+            <div id="container-module-reley">
+                <!-- Место для вставки реле модулей -->
+                <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
+            </div>
+            
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Сенсор-модули
+                <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockModule('container-module-sensor')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
+                <div style="font-size: 14px;color: #a0a0a0;padding-top: 10px;">Данные сенсоров обновляются раз в 3 минуты</div>
+            </div>
+            
+            <div id="container-module-sensor" style="position: relative;">
+                <!-- Место для вставки сенсор модулей -->
+                <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
+            </div>
+            
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Планировщик задач
+                <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockPlan('container-plan')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
+            </div>
+            
+            <div id="container-plan" style="position: relative;">
+                <!-- Место для вставки планировщик задач -->
+                <div class="item-module blick" style="padding: 10px;">Загрузка...</div> 
+            </div>
+
+
+            <!-- <div style="color: white;font-size: 40px;position: absolute;left: 50%;top: 50%;transform: translate(-50%, -50%);z-index: 1001;">В разработке</div>
+                <div style="height: 100%; width: 100%; opacity: 0.1; background-color: black;position: absolute;z-index: 1000;border-radius: 10px;">
+                </div> -->
+            
+            <div id="container-edit-form" style="display: none;">
+                <!--Блок редактирования модулей-->   
+                <div id="input-form-module-template" class="item-module panel">
+                    <div style="display: inline-block; padding: 10px;">
+                        <div><input id="edit-name" class="input-field" value="" placeholder="Название модуля..." style="margin-bottom: 10px; width: 200px;"></div>
+                        <div><input id="edit-user" class="input-field" value="" placeholder="Имя пользователя..." style="margin-bottom: 10px; width: 200px;"></div>
+                        <div><input id="edit-id" class="input-field" disabled value="" placeholder="ID модуля..." style="margin-bottom: 10px; width: 200px;"></div>
+                        <div><input id="edit-ip" class="input-field" value="" placeholder="IP модуля..." style="margin-bottom: 10px; width: 200px;"></div>
+                        <select id="edit-type" class="input-field" style="margin-bottom: 10px; width: 210px;">
+                            <option value="Реле-розетка">Реле-розетка</option>
+                            <option value="Реле-свет">Реле-свет</option>
+                            <option value="Сенсор">Сенсор</option>
+                        </select>
+                        <div>
+                            <input id="edit-left" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'left')" placeholder="Left..." style="margin-bottom: 10px; width: 92px;">
+                            <input id="edit-top" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'top')" placeholder="Top..." style="margin-bottom: 10px; width: 93px;">
+                        </div>
+                        <div><input id="edit-color" class="input-field" value="" oninput="UpdateMapParameter(this, 'color')" placeholder="Цвет маркера..." style="width: 200px;"></div>
+                    </div>
+                    <div style="display: inline-block; vertical-align: top;padding: 10px;">
+                        <img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditBlock(this, 'edit')" style="padding-bottom: 10px;"><br>
+                        <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditModule(this, 'edit')" style="padding-bottom: 10px;"><br>
+                        <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeleteModule(this)">
+                    </div>
+                </div>
+                <!--Блок редактирования модулей--> 
+
+                <!--Блок редактирования задач-->
+                <div  id="input-form-plan-template" class="item-module panel">
+                    <div style="display: inline-block; padding: 10px;">
+                        <div><input id="edit-id" class="input-field" disabled placeholder="ID модуля..." style="margin-bottom: 10px; width: 265px;"></div>
+                        <div><input id="edit-ip" class="input-field" placeholder="IP модуля..." style="margin-bottom: 10px; width: 265px;"></div>
+                        <div>
+                            <input id="edit-time-start" class="input-field" type="time" style="margin-bottom: 10px; width: 120px;">
+                            <div style="display: inline-block;"> - </div>
+                            <input id="edit-time-end" class="input-field" type="time" style="margin-bottom: 10px; width: 120px;">
+                        </div>
+    <!--                     <style>
+                            .cbox-day {
+                                display: none;
+                            }
+                            .cbox-day:checked + label {
+                                color: red;
+                                font-weight: bold;
+                            }
+                        </style> -->
+                        <div style="margin-bottom: 10px">
+                            <input type="checkbox" id="ПН" class="cbox-day"/><label class="item-module item-checkbox">ПН</label>
+                            <input type="checkbox" id="ВТ" class="cbox-day"/><label class="item-module item-checkbox">ВТ</label>
+                            <input type="checkbox" id="СР" class="cbox-day"/><label class="item-module item-checkbox">СР</label>
+                            <input type="checkbox" id="ЧТ" class="cbox-day"/><label class="item-module item-checkbox">ЧТ</label>
+                            <input type="checkbox" id="ПТ" class="cbox-day"/><label class="item-module item-checkbox">ПТ</label>
+                            <input type="checkbox" id="СБ" class="cbox-day"/><label class="item-module item-checkbox">СБ</label>
+                            <input type="checkbox" id="ВС" class="cbox-day"/><label class="item-module item-checkbox">ВС</label>
+                        </div>
+                        <div><input id="edit-text-disc" class="input-field" value="" placeholder="Описание задачи..." style="width: 265px;"></div>
+                    </div>
+                    <div style="display: inline-block; vertical-align: top;padding: 10px;">
+                        <img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditBlock(this, 'edit')" style="padding-bottom: 10px;"><br>
+                        <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditPlan(this, 'edit')" style="padding-bottom: 10px;"><br>
+                        <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeletePlan(this)">
+                    </div>
+                </div>
+                <!--Блок редактирования задач-->
             </div>
         </div>
 
-        <div id="container-map" style="background-image: url(/static/img/map/map.png); background-position: center center; background-repeat: no-repeat; background-size: contain; width: 400px; height: 400px; background-color: #f3f3f3; border-radius: 10px; margin-bottom: 30px; position: relative;">
-            <!-- Место для вставки реле модулей -->
-            <div class="item-module" style="padding: 10px;color: #737373;">Загрузка...</div>
-        </div>
-        
-        <div style="font-size: 20px; padding-bottom: 15px;">
-            Реле-модули 
-            <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockModule('container-module-reley')">
-        </div>
 
-        <div id="container-module-reley">
-            <!-- Место для вставки реле модулей -->
-            <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
-        </div>
-        
-        <div style="font-size: 20px; padding-bottom: 15px;">
-            Сенсор-модули
-            <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockModule('container-module-sensor')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
-            <div style="font-size: 14px;color: #a0a0a0;padding-top: 10px;">Данные сенсоров обновляются раз в 3 минуты</div>
-        </div>
-        
-        <div id="container-module-sensor" style="position: relative;">
-        	<!-- Место для вставки сенсор модулей -->
-            <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
-        </div>
-        
-        <div style="font-size: 20px; padding-bottom: 15px;">
-            Планировщик задач
-            <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockPlan('container-plan')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
-        </div>
-        
-        <div id="container-plan" style="position: relative;">
-        	<!-- Место для вставки планировщик задач -->
-            <div class="item-module blick" style="padding: 10px;">Загрузка...</div> 
-        </div>
-
-
-        <!-- <div style="color: white;font-size: 40px;position: absolute;left: 50%;top: 50%;transform: translate(-50%, -50%);z-index: 1001;">В разработке</div>
-        	<div style="height: 100%; width: 100%; opacity: 0.1; background-color: black;position: absolute;z-index: 1000;border-radius: 10px;">
-        	</div> -->
-        
-        <div id="container-edit-form" style="display: none;">
-            <!--Блок редактирования модулей-->   
-            <div id="input-form-module-template" class="item-module">
-                <div style="display: inline-block; padding: 10px;">
-                    <div><input id="edit-name" class="input-field" value="" placeholder="Название модуля..." style="margin-bottom: 10px; width: 200px;"></div>
-                    <div><input id="edit-room" class="input-field" value="" placeholder="Название комнаты..." style="margin-bottom: 10px; width: 200px;"></div>
-                    <div><input id="edit-id" class="input-field" disabled value="" placeholder="ID модуля..." style="margin-bottom: 10px; width: 200px;"></div>
-                    <div><input id="edit-ip" class="input-field" value="" placeholder="IP модуля..." style="margin-bottom: 10px; width: 200px;"></div>
-                    <select id="edit-type" class="input-field" style="margin-bottom: 10px; width: 210px;">
-                        <option value="Реле-розетка">Реле-розетка</option>
-                        <option value="Реле-свет">Реле-свет</option>
-                        <option value="Сенсор">Сенсор</option>
-                    </select>
-                    <div>
-                        <input id="edit-left" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'left')" placeholder="Left..." style="margin-bottom: 10px; width: 92px;">
-                        <input id="edit-top" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'top')" placeholder="Top..." style="margin-bottom: 10px; width: 93px;">
-                    </div>
-                    <div><input id="edit-color" class="input-field" value="" oninput="UpdateMapParameter(this, 'color')" placeholder="Цвет маркера..." style="width: 200px;"></div>
-                </div>
-                <div style="display: inline-block; vertical-align: top;padding: 10px;">
-                    <img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditModule(this, 'edit')" style="padding-bottom: 10px;"><br>
-                    <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditModule(this, 'edit')" style="padding-bottom: 10px;"><br>
-                    <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeleteModule(this)">
-                </div>
+        <!-- Дела -->
+        <div id="tab2" class="nav-tab" style="display: none;">
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Напоминания
+                <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockReminder('container-reminder')">
             </div>
-            <!--Блок редактирования модулей--> 
 
-            <!--Блок редактирования задач-->
-            <div  id="input-form-plan-template" class="item-module">
-                <div style="display: inline-block; padding: 10px;">
-                	<div><input id="edit-id" class="input-field" disabled placeholder="ID модуля..." style="margin-bottom: 10px; width: 265px;"></div>
-                    <div><input id="edit-ip" class="input-field" placeholder="IP модуля..." style="margin-bottom: 10px; width: 265px;"></div>
-                    <div>
-                        <input id="edit-time-start" class="input-field" type="time" style="margin-bottom: 10px; width: 120px;">
-                        <div style="display: inline-block;"> - </div>
-                        <input id="edit-time-end" class="input-field" type="time" style="margin-bottom: 10px; width: 120px;">
-                    </div>
-<!--                     <style>
-                    	.cbox-day {
-                    		display: none;
-                    	}
-                    	.cbox-day:checked + label {
-							color: red;
-							font-weight: bold;
-						}
-                    </style> -->
-                    <div style="margin-bottom: 10px">
-                        <input type="checkbox" id="ПН" class="cbox-day"/><label class="item-module item-checkbox">ПН</label>
-                        <input type="checkbox" id="ВТ" class="cbox-day"/><label class="item-module item-checkbox">ВТ</label>
-                        <input type="checkbox" id="СР" class="cbox-day"/><label class="item-module item-checkbox">СР</label>
-                        <input type="checkbox" id="ЧТ" class="cbox-day"/><label class="item-module item-checkbox">ЧТ</label>
-                        <input type="checkbox" id="ПТ" class="cbox-day"/><label class="item-module item-checkbox">ПТ</label>
-                        <input type="checkbox" id="СБ" class="cbox-day"/><label class="item-module item-checkbox">СБ</label>
-                        <input type="checkbox" id="ВС" class="cbox-day"/><label class="item-module item-checkbox">ВС</label>
-                    </div>
-                    <div><input id="edit-text-disc" class="input-field" value="" placeholder="Описание задачи..." style="width: 265px;"></div>
-                </div>
-                <div style="display: inline-block; vertical-align: top;padding: 10px;">
-                	<img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditPlan(this, 'edit')" style="padding-bottom: 10px;"><br>
-                    <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditPlan(this, 'edit')" style="padding-bottom: 10px;"><br>
-                    <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeletePlan(this)">
-                </div>
+            <div id="container-reminder">
+                <!-- Место для вставки блоков напоминаний -->
+                <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
             </div>
-            <!--Блок редактирования задач-->
+
+            <div id="container-edit-form" style="display: none;">
+                <!--Блок редактирования напоминаний-->
+                <div  id="input-form-reminder-template" class="item-module panel">
+                    <div style="display: inline-block; padding: 10px;">
+                        <div><input id="edit-id" class="input-field" disabled placeholder="ID блока..." style="margin-bottom: 10px; width: 265px;"></div>
+                        <div><input id="edit-user" class="input-field" value="" placeholder="Имя пользователя..." style="margin-bottom: 10px;width: 265px;"></div>
+                        <div><input id="edit-disc" class="input-field" value="" placeholder="Описание блока..." style="margin-bottom: 10px;width: 265px;"></div>
+                        <div><input id="edit-reminder-list" class="input-field" value="" placeholder="Строка напоминания..." style="margin-bottom: 10px;width: 265px;"></div>
+                        <!-- <div id="container-reminder-list" style="margin-bottom: 10px;">
+                            <div><input id="edit-name-user" class="input-field" value="" placeholder="Строка напоминания..." style="margin-bottom: 10px;width: 265px;"></div>
+                            <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="">
+                        </div> -->
+                    </div>
+                    <div style="display: inline-block; vertical-align: top;padding: 10px;">
+                        <img id="cancel" class="button-image" src="/static/img/exit.png" onclick="CloseEditBlock(this, 'edit')" style="padding-bottom: 10px;"><br>
+                        <img id="confirm" class="button-image" src="/static/img/save.png" onclick="ConfirmEditReminder(this, 'edit')" style="padding-bottom: 10px;"><br>
+                        <img id="delete" class="button-image" src="/static/img/delete.png" onclick="DeleteReminder(this)">
+                    </div>
+                </div>
+                <!--Блок редактирования напоминаний-->
+            </div>
         </div>
-        
+
+        <!-- Логика дома -->
+        <div id="tab3" class="nav-tab" style="display: none;">
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Возможные варианты логики
+                <div style="font-size: 14px;color: #a0a0a0;padding-top: 10px;">Предлагается на основе найденных закономерностей</div>
+            </div>
+
+            <div id="container-logic-assumptions">
+                <!-- Место для вставки блоков логики -->
+                <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
+            </div>
+
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Логика
+                <img class="item-image" src="/static/img/plus.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="AddCreateBlockLogic('container-logic')">
+            </div>
+
+            <div id="container-logic">
+                <!-- Место для вставки блоков напоминаний -->
+                <div class="item-module blick" style="padding: 10px;">Загрузка...</div>
+            </div>
+        </div>
+
     </div>
 
     <div id="footer"></div>
@@ -216,6 +227,7 @@
         function postLoad() {
             GetDataModuleAndMap();
             GetDataPlan();
+            GetDataReminder();
             var date = new Date();
             document.querySelector('#copyright').innerHTML = 'Copyright &copy; 2020-' + date.getFullYear() + ', СтримХатаHiTech';
             setInterval(function() {

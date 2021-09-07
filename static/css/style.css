@@ -25,6 +25,12 @@ body {
     transition: all 150ms ease-out;
     position: relative;
 }
+
+.panel:hover {
+    box-shadow: 0 8px 8px -2px rgb(0 0 0 / 30%);
+    transform: scale(1.01);
+}
+
 .item-checkbox {
 /*    background-color: white; 
     padding: 5px; */
@@ -43,6 +49,11 @@ body {
     right: 10px;
     top: 10px;
     position: absolute;
+}
+.button-active {
+    background-color:#ffa620; 
+    color: white; 
+    cursor: pointer;
 }
 .item-image {
     display: inline-block;

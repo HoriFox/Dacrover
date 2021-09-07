@@ -38,22 +38,34 @@ function notif (message, title = '', styleNotif = 'success')
     });
 }
 
+// 1. CREATE Module
 function AddCreateBlockModule(block) {
     editForm = document.querySelector('#input-form-module-template').cloneNode(true);
     editForm.id = 'input-form-module';
     editForm.querySelector('#confirm').onclick = function() { ConfirmEditModule(this); };
-    editForm.querySelector('#cancel').onclick = function() { CloseEditModule(this); };
+    editForm.querySelector('#cancel').onclick = function() { CloseEditBlock(this); };
     document.querySelector('#' + block).append(editForm);
 }
 
+// 1. CREATE Plan
 function AddCreateBlockPlan(block) {
     editForm = document.querySelector('#input-form-plan-template').cloneNode(true);
     editForm.id = 'input-form-plan';
     editForm.querySelector('#confirm').onclick = function() { ConfirmEditPlan(this); };
-    editForm.querySelector('#cancel').onclick = function() { CloseEditPlan(this); };
+    editForm.querySelector('#cancel').onclick = function() { CloseEditBlock(this); };
     document.querySelector('#' + block).append(editForm);
 }
 
+// 1. CREATE Reminder
+function AddCreateBlockReminder(block) {
+    editForm = document.querySelector('#input-form-reminder-template').cloneNode(true);
+    editForm.id = 'input-form-reminder';
+    editForm.querySelector('#confirm').onclick = function() { ConfirmEditReminder(this); };
+    editForm.querySelector('#cancel').onclick = function() { CloseEditBlock(this); };
+    document.querySelector('#' + block).append(editForm);
+}
+
+// 2. EDIT Module
 function EditModule(element) {
     container = element.parentNode.parentNode;
     container.style.display = 'none';
@@ -61,7 +73,7 @@ function EditModule(element) {
     editForm = document.querySelector('#input-form-module-template').cloneNode(true);
     editForm.id = 'input-form-module';
     editForm.querySelector('#edit-name').value = container.querySelector('#name').innerHTML;
-    editForm.querySelector('#edit-room').value = container.querySelector('#room').innerHTML;
+    editForm.querySelector('#edit-user').value = container.querySelector('#user').innerHTML;
     editForm.querySelector('#edit-id').value = container.querySelector('#id').innerHTML;
     editForm.querySelector('#edit-ip').value = container.querySelector('#ip').innerHTML;
     editForm.querySelector('#edit-type').value = container.querySelector('#type').innerHTML;
@@ -72,66 +84,7 @@ function EditModule(element) {
     container.after(editForm);
 }
 
-function ConfirmEditModule(buttonConfirm, type = 'create') {
-    editForm = buttonConfirm.parentNode.parentNode;
-    
-    var editId = editForm.querySelector('#edit-id').value;
-    var idModule = editId == '' ? 'NULL' : editId;
-
-    // Получение данных, отправка на сервер изменений, если успешно, продолжить
-    setData = {}
-    setData['function'] = 'set_module';
-    setData['name'] = editForm.querySelector('#edit-name').value;
-    setData['room'] = editForm.querySelector('#edit-room').value;
-    setData['id'] = idModule;
-    setData['ip'] = editForm.querySelector('#edit-ip').value;
-    setData['type'] = editForm.querySelector('#edit-type').value;
-
-    var left = editForm.querySelector('#edit-left').value;
-    var top = editForm.querySelector('#edit-top').value;
-    var color = editForm.querySelector('#edit-color').value;
-    setData['mapdata'] = left + '|' + top + '|' + color;
-
-    var req = GetXmlHttp();
-    req.onreadystatechange = function() {  
-        if (req.readyState == 4) { 
-            if(req.status == 200) {
-                CloseEditModule(buttonConfirm, type);
-                Refresh();
-            }
-            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
-        }
-    }
-    var json_string = JSON.stringify(setData);
-    SendRequest(req, json_string);
-}
-
-function DeleteModule(buttonDelete) {
-    editForm = buttonDelete.parentNode.parentNode;
-    var editId = editForm.querySelector('#edit-id').value;
-    if (editId != '') {
-    	deleteData = {}
-    	deleteData['function'] = 'delete_module';
-    	deleteData['id'] = editId;
-
-    	var req = GetXmlHttp();
-	    req.onreadystatechange = function() {  
-	        if (req.readyState == 4) { 
-	            if(req.status == 200) { Refresh(); }
-	            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
-	        }
-	    }
-	    var json_string = JSON.stringify(deleteData);
-        SendRequest(req, json_string);
-    }
-}
-
-function CloseEditModule(buttonCancel, type = 'edit') {
-    editForm = buttonCancel.parentNode.parentNode;
-    if (type == 'edit') editForm.previousElementSibling.style.display = 'inline-block';
-    editForm.remove();
-}
-
+// 2. EDIT Plan
 function EditPlan(element) {
     container = element.parentNode.parentNode;
     container.style.display = 'none';
@@ -153,6 +106,58 @@ function EditPlan(element) {
     container.after(editForm);
 }
 
+// 2. EDIT Reminder
+function EditReminder(element) {
+    container = element.parentNode.parentNode;
+    container.style.display = 'none';
+    
+    editForm = document.querySelector('#input-form-reminder-template').cloneNode(true);
+    editForm.id = 'input-form-reminder';
+    editForm.querySelector('#edit-id').value = container.querySelector('#id').innerHTML;
+    editForm.querySelector('#edit-user').value = container.querySelector('#user').innerHTML;
+    editForm.querySelector('#edit-disc').value = container.querySelector('#disc').innerHTML;
+    editForm.querySelector('#edit-reminder-list').value = container.querySelector('#reminder-list').innerHTML;
+    
+    container.after(editForm);
+}
+
+// 3. CONFIRM EDIT Module
+function ConfirmEditModule(buttonConfirm, type = 'create') {
+    editForm = buttonConfirm.parentNode.parentNode;
+    
+    var editId = editForm.querySelector('#edit-id').value;
+    var idModule = editId == '' ? 'NULL' : editId;
+
+    // Получение данных, отправка на сервер изменений, если успешно, продолжить
+    setData = {}
+    setData['function'] = 'set_module';
+    setData['name'] = editForm.querySelector('#edit-name').value;
+    setData['user'] = editForm.querySelector('#edit-user').value;
+    setData['id'] = idModule;
+    setData['ip'] = editForm.querySelector('#edit-ip').value;
+    setData['type'] = editForm.querySelector('#edit-type').value;
+
+    var left = editForm.querySelector('#edit-left').value;
+    var top = editForm.querySelector('#edit-top').value;
+    var color = editForm.querySelector('#edit-color').value;
+    setData['mapdata'] = left + '|' + top + '|' + color;
+
+    var req = GetXmlHttp();
+    req.onreadystatechange = function() {  
+        if (req.readyState == 4) { 
+            if(req.status == 200) {
+                CloseEditBlock(buttonConfirm, type);
+                // TODO Если несколько открытых панелей, то всё перезагружается
+                    // Refresh(); 
+            }
+            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+        }
+    }
+    var json_string = JSON.stringify(setData);
+    SendRequest(req, json_string);
+}
+
+// 3. CONFIRM EDIT Plan
 function ConfirmEditPlan(buttonConfirm, type = 'create') {
     editForm = buttonConfirm.parentNode.parentNode;
 
@@ -182,8 +187,9 @@ function ConfirmEditPlan(buttonConfirm, type = 'create') {
     req.onreadystatechange = function() {  
         if (req.readyState == 4) { 
             if(req.status == 200) {
-                CloseEditPlan(buttonConfirm, type);
-                Refresh();
+                CloseEditBlock(buttonConfirm, type);
+                // TODO Если несколько открытых панелей, то всё перезагружается
+                    // Refresh(); 
             }
             else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
         }
@@ -192,6 +198,63 @@ function ConfirmEditPlan(buttonConfirm, type = 'create') {
     SendRequest(req, json_string);
 }
 
+// 3. CONFIRM EDIT Reminder
+function ConfirmEditReminder(buttonConfirm, type = 'create') {
+    editForm = buttonConfirm.parentNode.parentNode;
+    
+    var editId = editForm.querySelector('#edit-id').value;
+    var idModule = editId == '' ? 'NULL' : editId;
+
+    // Получение данных, отправка на сервер изменений, если успешно, продолжить
+    setData = {}
+    setData['function'] = 'set_reminder';
+    setData['id'] = idModule;
+    setData['user'] = editForm.querySelector('#edit-user').value;
+    setData['disc'] = editForm.querySelector('#edit-disc').value;
+    setData['list'] = editForm.querySelector('#edit-reminder-list').value;
+
+    var req = GetXmlHttp();
+    req.onreadystatechange = function() {  
+        if (req.readyState == 4) { 
+            if(req.status == 200) {
+                CloseEditBlock(buttonConfirm, type);
+                // TODO Если несколько открытых панелей, то всё перезагружается
+                // Refresh(); 
+            }
+            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+        }
+    }
+    var json_string = JSON.stringify(setData);
+    SendRequest(req, json_string);
+}
+
+// 4. DELETE Module
+function DeleteModule(buttonDelete) {
+    editForm = buttonDelete.parentNode.parentNode;
+    var editId = editForm.querySelector('#edit-id').value;
+    if (editId != '') {
+    	deleteData = {}
+    	deleteData['function'] = 'delete_module';
+    	deleteData['id'] = editId;
+
+    	var req = GetXmlHttp();
+	    req.onreadystatechange = function() {  
+	        if (req.readyState == 4) { 
+	            if(req.status == 200) { 
+                    // TODO Если несколько открытых панелей, то всё перезагружается
+                    // Refresh(); 
+                }
+	            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+	        }
+	    }
+	    var json_string = JSON.stringify(deleteData);
+        SendRequest(req, json_string);
+    } else {
+        notif('Попытка удалить блок редактирования', 'Ошибка', 'warning');
+    }
+}
+
+// 4. DELETE Plan
 function DeletePlan(buttonDelete) {
     editForm = buttonDelete.parentNode.parentNode;
     var editId = editForm.querySelector('#edit-id').value;
@@ -203,25 +266,58 @@ function DeletePlan(buttonDelete) {
         var req = GetXmlHttp();
         req.onreadystatechange = function() {  
             if (req.readyState == 4) { 
-                if(req.status == 200) { Refresh(); }
+                if(req.status == 200) { 
+                    // TODO Если несколько открытых панелей, то всё перезагружается
+                    // Refresh(); 
+                }
                 else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
             }
         }
         var json_string = JSON.stringify(deleteData);
         SendRequest(req, json_string);
+    } else {
+        notif('Попытка удалить блок редактирования', 'Ошибка', 'warning');
     }
 }
 
-function CloseEditPlan(buttonCancel, type = 'create') {
-    container = buttonCancel.parentNode.parentNode;
-    if (type == 'edit') container.previousElementSibling.style.display = 'inline-block';
-    container.remove();
+// 4. DELETE Reminder
+function DeleteReminder(buttonDelete) {
+    editForm = buttonDelete.parentNode.parentNode;
+    var editId = editForm.querySelector('#edit-id').value;
+    if (editId != '') {
+        deleteData = {}
+        deleteData['function'] = 'delete_reminder';
+        deleteData['id'] = editId;
+
+        var req = GetXmlHttp();
+        req.onreadystatechange = function() {  
+            if (req.readyState == 4) { 
+                if(req.status == 200) { 
+                    // TODO Если несколько открытых панелей, то всё перезагружается
+                    // Refresh();
+                }
+                else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+            }
+        }
+        var json_string = JSON.stringify(deleteData);
+        SendRequest(req, json_string);
+    } else {
+        notif('Попытка удалить блок редактирования', 'Ошибка', 'warning');
+    }
+}
+
+// 5. CLOSE EDIT Module
+function CloseEditBlock(buttonCancel, type = 'edit') {
+    editForm = buttonCancel.parentNode.parentNode;
+    if (type == 'edit') editForm.previousElementSibling.style.display = 'inline-block';
+    editForm.remove();
 }
 
 // Кнопка обновления
 function Refresh() {
 	GetDataModuleAndMap();
     GetDataPlan();
+    GetDataReminder();
     UpdageSensorData();
     timeAgo = 0;
     document.querySelector('#status-refresh').innerHTML = 'Последнее обновление - 0 секунд назад';
@@ -336,6 +432,7 @@ function UpdateSensorData(data, sensor_data) {
     sensor_data.innerHTML = htmlCode;
 }
 
+// 1. GET DATA ModuleAndMap
 function GetDataModuleAndMap() {
     var req = GetXmlHttp();
     req.onreadystatechange = function() {  
@@ -351,6 +448,39 @@ function GetDataModuleAndMap() {
     SendRequest(req, json_string);
 }
 
+// 1. GET DATA Plan
+function GetDataPlan() {
+    var req = GetXmlHttp();
+    req.onreadystatechange = function() {  
+        if (req.readyState == 4) { 
+            if(req.status == 200) {
+                var json = JSON.parse(req.responseText);
+                SetDataPlan(json);
+            }
+            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+        }
+    }
+    var json_string = JSON.stringify({'function':'get_list_plan'});
+    SendRequest(req, json_string);
+}
+
+// 1. GET DATA Reminder
+function GetDataReminder() {
+    var req = GetXmlHttp();
+    req.onreadystatechange = function() {  
+        if (req.readyState == 4) { 
+            if(req.status == 200) {
+                var json = JSON.parse(req.responseText);
+                SetDataReminder(json);
+            }
+            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+        }
+    }
+    var json_string = JSON.stringify({'function':'get_list_reminder'});
+    SendRequest(req, json_string);
+}
+
+// 2. SET DATA ModuleAndMap
 function SetDataModuleAndMap(json) {
     var container_map = document.querySelector('#container-map');
 	var container_relay = document.querySelector('#container-module-reley');
@@ -381,13 +511,13 @@ function SetDataModuleAndMap(json) {
 
         var mapData = json[i].MapData.split('|');
 
-		var moduleCode = `<div class="item-module" id="module-${json[i].ModuleId}">
+		var moduleCode = `<div class="item-module panel" id="module-${json[i].ModuleId}">
                             <div id="ip">${json[i].ModuleIp}</div>
                             <div id="type">${json[i].ModuleType}</div>
     		                <img class="item-image" src="${imgModule}" style="padding: 35px 0 10px 10px;">
     		                <div style="display: inline-block; padding: 35px 0 10px 10px;">
     		                    <div id="name">${json[i].ModuleName}</div>
-    		                    <div id="room" style="color: #50b925;">${json[i].Room}</div>
+    		                    <div id="user" style="color: #50b925;">${json[i].ModuleUser}</div>
     		                    <div id="id" style="display: none;">${json[i].ModuleId}</div>
                                 <div id="left" style="display: none;">${mapData[0]}</div>
                                 <div id="top" style="display: none;">${mapData[1]}</div>
@@ -411,59 +541,7 @@ function SetDataModuleAndMap(json) {
 	container_sensor.innerHTML = htmlCodeSensor;
 }
 
-function SavePositionMarker() {
-	var childrenMap = document.getElementById("container-map").children;
-	for (var i = 0; i < childrenMap.length; i++) {
-		var id = childrenMap[i].id.split('-')[1];
-		var marker = document.querySelector('#marker-' + id);
-		var form = document.querySelector('#module-' + id);
-
-		var left = parseInt(marker.style.left);
-	    var top = parseInt(marker.style.top);
-
-	    if (form.querySelector('#left').innerHTML == left && 
-	    	form.querySelector('#top').innerHTML == top) continue;
-
-	    form.querySelector('#left').innerHTML = left;
-	    form.querySelector('#top').innerHTML = top;
-
-	    setData = {}
-	    setData['function'] = 'set_module';
-	    setData['name'] = form.querySelector('#name').innerHTML;
-	    setData['room'] = form.querySelector('#room').innerHTML;
-	    setData['id'] = id;
-	    setData['ip'] = form.querySelector('#ip').innerHTML;
-	    setData['type'] = form.querySelector('#type').innerHTML;
-
-	    var color = form.querySelector('#color').innerHTML;
-	    setData['mapdata'] = left + '|' + top + '|' + color;
-
-		var req = GetXmlHttp();
-	    req.onreadystatechange = function() {  
-	        if (req.readyState == 4) { 
-	            if(req.status != 200) { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
-	        }
-	    }
-	    var json_string = JSON.stringify(setData);
-	    SendRequest(req, json_string);
-	}
-}
-
-function GetDataPlan() {
-    var req = GetXmlHttp();
-    req.onreadystatechange = function() {  
-        if (req.readyState == 4) { 
-            if(req.status == 200) {
-                var json = JSON.parse(req.responseText);
-                SetDataPlan(json);
-            }
-            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
-        }
-    }
-    var json_string = JSON.stringify({'function':'get_list_plan'});
-    SendRequest(req, json_string);
-}
-
+// 2. SET DATA Plan
 function SetDataPlan(json) {
     var container_plan = document.querySelector('#container-plan');
     htmlCode = '';
@@ -489,7 +567,7 @@ function SetDataPlan(json) {
                         <div id="time-end" style="display: inline-block;">${timeText[1]}</div>`;
         }
 
-        htmlCode += `<div class="item-module">
+        htmlCode += `<div class="item-module panel">
                             <div id="ip">${json[i].ModuleIp}</div>
                             <div style="display: inline-block; padding: 35px 0 10px 10px;">
                                 <div id="time" style="font-size: 23px; color: #e0641c;">
@@ -507,6 +585,66 @@ function SetDataPlan(json) {
     container_plan.innerHTML = htmlCode;
 }
 
+// 2. SET DATA Reminder
+function SetDataReminder(json) {
+    var container_plan = document.querySelector('#container-reminder');
+    htmlCode = '';
+    for (var i = 0; i < json.length; i++) {
+		htmlCode += `<div class="item-module panel" id="module-${json[i].ReminderId}">
+                        <div id="type">Блок напоминания</div>
+                        <div style="display: inline-block;padding: 35px 10px 10px 10px;">
+                            <div id="id" style="display: none;">${json[i].ReminderId}</div>
+                            <div id="disc">${json[i].ReminderDisc}</div>
+                            <div id="user" style="color: #50b925;">${json[i].ReminderUser}</div>
+    		                <div id="reminder-list">${json[i].ReminderList}</div>
+                        </div>
+                        <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;">
+    		                <img class="button-image" src="/static/img/edit.png" onclick="EditReminder(this)">
+    		            </div> 
+    		        </div>`;
+    }
+    container_plan.innerHTML = htmlCode;
+}
+
+// КАРТА ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function SavePositionMarker() {
+	var childrenMap = document.getElementById("container-map").children;
+	for (var i = 0; i < childrenMap.length; i++) {
+		var id = childrenMap[i].id.split('-')[1];
+		var marker = document.querySelector('#marker-' + id);
+		var form = document.querySelector('#module-' + id);
+
+		var left = parseInt(marker.style.left);
+	    var top = parseInt(marker.style.top);
+
+	    if (form.querySelector('#left').innerHTML == left && 
+	    	form.querySelector('#top').innerHTML == top) continue;
+
+	    form.querySelector('#left').innerHTML = left;
+	    form.querySelector('#top').innerHTML = top;
+
+	    setData = {}
+	    setData['function'] = 'set_module';
+	    setData['name'] = form.querySelector('#name').innerHTML;
+	    setData['user'] = form.querySelector('#user').innerHTML;
+	    setData['id'] = id;
+	    setData['ip'] = form.querySelector('#ip').innerHTML;
+	    setData['type'] = form.querySelector('#type').innerHTML;
+
+	    var color = form.querySelector('#color').innerHTML;
+	    setData['mapdata'] = left + '|' + top + '|' + color;
+
+		var req = GetXmlHttp();
+	    req.onreadystatechange = function() {  
+	        if (req.readyState == 4) { 
+	            if(req.status != 200) { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
+	        }
+	    }
+	    var json_string = JSON.stringify(setData);
+	    SendRequest(req, json_string);
+	}
+}
+
 function UpdateMapParameter(element, nameElement) {
     editForm = element.parentNode.parentNode;
     var id = editForm.querySelector('#edit-id').value;
@@ -521,3 +659,70 @@ function UpdateMapParameter(element, nameElement) {
         marker.style['background-color'] = element.value;
     }
 }
+
+// НИЖЕ ПЕРЕМЕЩЕНИЕ ПО КАРТЕ МАРКЕРОВ
+isChangePositionMarker = false
+function ChangeStatePositionMarker(element) {
+    if (isChangePositionMarker) {
+        element.innerHTML = "Переместить маркеры";
+        element.style['background-color'] = "#e25d5d";
+        ResetSelect();
+        SavePositionMarker();
+        isChangePositionMarker = false;
+    } else {
+        element.innerHTML = "Сохранить";
+        element.style['background-color'] = "#67d06d";
+        isChangePositionMarker = true;
+    }
+}
+function ResetSelect(){
+    var c = document.getElementById("container-map").children;
+    var i;
+    for (i = 0; i < c.length; i++) {
+        c[i].style.border = 'none';
+        c[i].style.margin = '0px';
+    }
+}
+var dragObject, mouseOffset;
+function mouseUp(){
+    dragObject.onmousemove = null;
+    dragObject.onmouseup = null;
+    dragObject.querySelector('.marker-desc').style.display = null;
+    dragObject = null;
+    mouseOffset = {x:0, y:0};
+}
+function mouseMove(element){
+    if (dragObject) {
+        dragObject.style.top = element.pageY - mouseOffset.y + 'px';
+        dragObject.style.left = element.pageX - mouseOffset.x + 'px';
+    }
+}
+function mouseDown(element) {
+    if (!isChangePositionMarker) return;
+    ResetSelect();
+    dragObject = element;
+    element.style.border = '1px solid #57e0ff';
+    element.style.margin = '-1px 0 0 -1px';
+    element.querySelector('.marker-desc').style.display = 'none';
+    mouseOffset = {x:event.pageX - dragObject.offsetLeft, y:event.pageY - dragObject.offsetTop};
+    dragObject.onmousemove = mouseMove;
+    dragObject.onmouseup = mouseUp;
+}
+// КАРТА ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// ВКЛАДКИ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function OpenTab(nubmerTab, element) {
+    var tabs = document.querySelectorAll(".nav-tab");
+    for (var i = 0; i < tabs.length; i++) {
+        tabs[i].style.display = "none";
+    }
+
+    document.querySelector("#tab" + nubmerTab).style.display = "block";
+    
+    var tabsButton = element.parentNode.querySelectorAll(".tab-button");
+    for (var i = 0; i < tabsButton.length; i++) {
+        tabsButton[i].classList.remove("button-active");
+    }
+    element.classList.add("button-active");
+}
+// ВКЛАДКИ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

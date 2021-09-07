@@ -103,7 +103,7 @@ class Api():
 			query = link_bd.insert('modules', True, 'ChangeTime',
 									ModuleId=idModule,
 									ModuleName=request_data['name'],
-									Room=request_data['room'],
+									ModuleUser=request_data['user'],
 									ModuleIp=request_data['ip'],
 									ModuleType=request_data['type'],
 					MapData=request_data['mapdata'])
@@ -134,6 +134,24 @@ class Api():
 			id_plan = request_data['id']
 			link_bd.delete('plans', '`PlanId` = ' + id_plan)
 			self.cron_manager.delete_plan(str(id_plan))
+			return 'good', False
+
+		if function == 'get_list_reminder':
+			reminders_json = link_bd.select('reminders', json=True)
+			return reminders_json, True
+
+		if function == 'set_reminder':
+			id_reminder = None if request_data['id'] == 'NULL' else request_data['id']
+			query = link_bd.insert('reminders', True, 'ChangeTime',
+									ReminderId=id_reminder,
+									ReminderUser=request_data['user'],
+									ReminderDisc=request_data['disc'],
+									ReminderList=request_data['list'])
+			return query, False
+
+		if function == 'delete_reminder':
+			id_reminder = request_data['id']
+			link_bd.delete('reminders', '`ReminderId` = ' + id_reminder)
 			return 'good', False
 
 		return 'function not found', False
