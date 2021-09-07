@@ -116,7 +116,7 @@ function EditReminder(element) {
     editForm.querySelector('#edit-id').value = container.querySelector('#id').innerHTML;
     editForm.querySelector('#edit-user').value = container.querySelector('#user').innerHTML;
     editForm.querySelector('#edit-disc').value = container.querySelector('#disc').innerHTML;
-    editForm.querySelector('#edit-reminder-list').value = container.querySelector('#reminder-list').innerHTML;
+    editForm.querySelector('#edit-reminder-list').innerHTML = container.querySelector('#reminder-list').innerHTML.split('<br>').join('\n');
     
     container.after(editForm);
 }
@@ -148,7 +148,7 @@ function ConfirmEditModule(buttonConfirm, type = 'create') {
             if(req.status == 200) {
                 CloseEditBlock(buttonConfirm, type);
                 // TODO Если несколько открытых панелей, то всё перезагружается
-                    // Refresh(); 
+                Refresh(); 
             }
             else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
         }
@@ -189,7 +189,7 @@ function ConfirmEditPlan(buttonConfirm, type = 'create') {
             if(req.status == 200) {
                 CloseEditBlock(buttonConfirm, type);
                 // TODO Если несколько открытых панелей, то всё перезагружается
-                    // Refresh(); 
+                Refresh(); 
             }
             else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
         }
@@ -211,7 +211,7 @@ function ConfirmEditReminder(buttonConfirm, type = 'create') {
     setData['id'] = idModule;
     setData['user'] = editForm.querySelector('#edit-user').value;
     setData['disc'] = editForm.querySelector('#edit-disc').value;
-    setData['list'] = editForm.querySelector('#edit-reminder-list').value;
+    setData['list'] = editForm.querySelector('#edit-reminder-list').value.split('\n').join('[DEL]');
 
     var req = GetXmlHttp();
     req.onreadystatechange = function() {  
@@ -219,7 +219,7 @@ function ConfirmEditReminder(buttonConfirm, type = 'create') {
             if(req.status == 200) {
                 CloseEditBlock(buttonConfirm, type);
                 // TODO Если несколько открытых панелей, то всё перезагружается
-                // Refresh(); 
+                Refresh(); 
             }
             else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
         }
@@ -242,7 +242,7 @@ function DeleteModule(buttonDelete) {
 	        if (req.readyState == 4) { 
 	            if(req.status == 200) { 
                     // TODO Если несколько открытых панелей, то всё перезагружается
-                    // Refresh(); 
+                    Refresh(); 
                 }
 	            else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
 	        }
@@ -268,7 +268,7 @@ function DeletePlan(buttonDelete) {
             if (req.readyState == 4) { 
                 if(req.status == 200) { 
                     // TODO Если несколько открытых панелей, то всё перезагружается
-                    // Refresh(); 
+                    Refresh(); 
                 }
                 else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
             }
@@ -294,7 +294,7 @@ function DeleteReminder(buttonDelete) {
             if (req.readyState == 4) { 
                 if(req.status == 200) { 
                     // TODO Если несколько открытых панелей, то всё перезагружается
-                    // Refresh();
+                    Refresh();
                 }
                 else { notif(req.status ? req.statusText : 'Запрос не удался', 'Ошибка', 'warning'); return;}
             }
@@ -590,15 +590,17 @@ function SetDataReminder(json) {
     var container_plan = document.querySelector('#container-reminder');
     htmlCode = '';
     for (var i = 0; i < json.length; i++) {
-		htmlCode += `<div class="item-module panel" id="module-${json[i].ReminderId}">
+        listReminder = json[i].ReminderList.split('[DEL]').join('<br>')
+		htmlCode += `<div class="item-module panel" style="min-width: 147px;" id="module-${json[i].ReminderId}">
                         <div id="type">Блок напоминания</div>
-                        <div style="display: inline-block;padding: 35px 10px 10px 10px;">
+                        <div style="display: inline-block;padding: 35px 10px 10px 10px;margin-right: 40px;">
                             <div id="id" style="display: none;">${json[i].ReminderId}</div>
                             <div id="disc">${json[i].ReminderDisc}</div>
                             <div id="user" style="color: #50b925;">${json[i].ReminderUser}</div>
-    		                <div id="reminder-list">${json[i].ReminderList}</div>
+                            <div style="background: #b7b7b7;height: 2px;width: 100%;margin-top: 15px;"></div>
+    		                <div id="reminder-list" style="padding-top: 15px;">${listReminder}</div>
                         </div>
-                        <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;">
+                        <div style="display: inline-block; vertical-align: top;padding: 35px 10px 10px 10px;position: absolute;right: 0;">
     		                <img class="button-image" src="/static/img/edit.png" onclick="EditReminder(this)">
     		            </div> 
     		        </div>`;
