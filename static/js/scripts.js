@@ -1,3 +1,8 @@
+// GLOBAL VALUE
+timeAgo = 0;
+var sensorsDict = {}; // ip:module-id
+// GLOBAL VALUE
+
 function GetXmlHttp() {
     var xmlhttp;
     try {
@@ -32,8 +37,6 @@ function notif (message, title = '', styleNotif = 'success')
         message: message
     });
 }
-
-timeAgo = 0;
 
 function AddCreateBlockModule(block) {
     editForm = document.querySelector('#input-form-module-template').cloneNode(true);
@@ -215,16 +218,28 @@ function CloseEditPlan(buttonCancel, type = 'create') {
     container.remove();
 }
 
+// Кнопка обновления
 function Refresh() {
 	GetDataModuleAndMap();
     GetDataPlan();
+    UpdageSensorData();
     timeAgo = 0;
     document.querySelector('#status-refresh').innerHTML = 'Последнее обновление - 0 секунд назад';
 }
 
+// Функция в таймере 5 секунд
 function UpdageTimeAgo() {
     timeAgo += 5;
     document.querySelector('#status-refresh').innerHTML = 'Последнее обновление - ' + timeAgo + ' секунд назад';
+}
+
+// Функция в таймере 3 минуты
+function UpdageSensorData() {
+    for(var sensorIp in sensorsDict) {
+        var sensorModuleId = sensorsDict[sensorIp];
+        console.log(sensorIp + ' ' + sensorModuleId)
+        SendRequestSensor(sensorIp, sensorModuleId);
+    }
 }
 
 function AddModuleValidate(container) {
@@ -257,6 +272,7 @@ function ResetError(container) {
     container.classList.add('success'); 
 }
 
+// Исполнитель ЗАПРОС К РЕЛЕ
 function SendRequestRelay(ip, value) {
     jProgress.start();
     var xhr = new XMLHttpRequest();
@@ -275,32 +291,42 @@ function SendRequestRelay(ip, value) {
     xhr.send(JSON.stringify({"type":"relay", "ip":ip, "value":value}));
 }
 
-// Публичная функция ЗАПРОСА К ДАТЧИКУ
-function UpdateSensor() {
-	// container = buttonSwitch.parentNode.parentNode;
-	// var ip = container.querySelector('#ip').innerHTML;
-	// if (value == 0) {
- //        SendRequestRelay(ip, 0);
-	// } else {
- //        SendRequestRelay(ip, 1);
-	// }
-}
-
 // Исполнитель ЗАПРОС К ДАТЧИКУ
-function SendRequestSensor(ip) {
+function SendRequestSensor(ip, id_module_block) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/', true);
     xhr.onreadystatechange = function() {  
         if (xhr.readyState == 4) { 
             if(xhr.status == 200) {
-            	if (xhr.responseText == 'error-connection-ip') {
-            		notif('Нет подключения к указанному ip', 'Ошибка', 'warning');
+                var data = undefined;
+            	if (xhr.responseText != 'error-connection-ip') {
+                    data = JSON.parse(xhr.responseText)[0];
             	}
+                var sensor_data = document.querySelector('#' + id_module_block).querySelector('#sensor-data');
+                UpdateSensorData(data, sensor_data);
         	}
         }
     }
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({"type":"sensor", "ip":ip.toString()}));
+}
+
+function UpdateSensorData(data, sensor_data) {
+    htmlCode = '';
+    if (data != undefined) {
+        if (data.temperature != undefined) {
+            htmlCode += `Температура: ` + data.temperature + '°<br>'
+        }
+        if (data.humidity != undefined) {
+            htmlCode += `Влажность: ` + data.humidity + '%<br>'
+        }
+        if (data.pir_artive != undefined) {
+            htmlCode += `Движение: ` + data.pir_artive + '<br>'
+        }
+    } else {
+        htmlCode += `Сенсор не отвечает`;
+    }
+    sensor_data.innerHTML = htmlCode;
 }
 
 function GetDataModuleAndMap() {
@@ -325,13 +351,13 @@ function SetDataModuleAndMap(json) {
     htmlCodeMap = '';
 	htmlCodeRelay = '';
 	htmlCodeSensor = '';
+    sensorsDict = {};
 	for (var i = 0; i < json.length; i++) {
 		var type = '';
 		var imgModule = '';
 		if (json[i].ModuleType == 'Реле-свет') imgModule = '/static/img/switch.png';
 		if (json[i].ModuleType == 'Реле-розетка') imgModule = '/static/img/socket.png';
-        if (json[i].ModuleType == 'Датчик температуры') imgModule = '/static/img/temp.png';
-        if (json[i].ModuleType == 'Датчик газа') imgModule = '/static/img/temp.png';
+        if (json[i].ModuleType == 'Сенсор') imgModule = '/static/img/temp.png';
 
 		var contentModule = ''
 		if (json[i].ModuleType == 'Реле-свет' || json[i].ModuleType == 'Реле-розетка') {
@@ -339,9 +365,10 @@ function SetDataModuleAndMap(json) {
 		                    <div class="ibutton ibutton-off" style="margin-top: 5px;" onclick="SendRequestRelay('${json[i].ModuleIp}', '0')">Выключить</div>`;
 		    type = 'relay';
 		}
-		if (json[i].ModuleType == 'Датчик температуры' || json[i].ModuleType == 'Датчик газа') {
-			contentModule = `<div style="font-size: 20px; padding-top: 8px; color: #e0641c;">Нет данных</div>`;
-            // 9°
+		if (json[i].ModuleType == 'Сенсор') {
+            sensorsDict[json[i].ModuleIp] = 'module-' + json[i].ModuleId;
+			contentModule = `<div class="ibutton ibutton-on" style="margin-top: 5px;" onclick="SendRequestSensor('${json[i].ModuleIp}', 'module-${json[i].ModuleId}')">Обновить</div>
+                            <div id="sensor-data" style="font-size: 20px; padding-top: 8px; color: #e0641c;">Не обновлено</div>`;
 			type = 'sensor';
 		}
 

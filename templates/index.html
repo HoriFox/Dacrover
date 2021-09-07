@@ -115,6 +115,7 @@
         <div style="font-size: 20px; padding-bottom: 15px;">
             Сенсор-модули
             <img class="item-image" src="/static/img/plus.png" onclick="AddCreateBlockModule('container-module-sensor')" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;">
+            <div style="font-size: 14px;color: #a0a0a0;padding-top: 10px;">Данные сенсоров обновляются раз в 3 минуты</div>
         </div>
         
         <div id="container-module-sensor" style="position: relative;">
@@ -142,14 +143,13 @@
             <div id="input-form-module-template" class="item-module">
                 <div style="display: inline-block; padding: 10px;">
                     <div><input id="edit-name" class="input-field" value="" placeholder="Название модуля..." style="margin-bottom: 10px; width: 200px;"></div>
-                    <div><input id="edit-room" class="input-field" value="" placeholder="Название команты..." style="margin-bottom: 10px; width: 200px;"></div>
+                    <div><input id="edit-room" class="input-field" value="" placeholder="Название комнаты..." style="margin-bottom: 10px; width: 200px;"></div>
                     <div><input id="edit-id" class="input-field" disabled value="" placeholder="ID модуля..." style="margin-bottom: 10px; width: 200px;"></div>
                     <div><input id="edit-ip" class="input-field" value="" placeholder="IP модуля..." style="margin-bottom: 10px; width: 200px;"></div>
                     <select id="edit-type" class="input-field" style="margin-bottom: 10px; width: 210px;">
                         <option value="Реле-розетка">Реле-розетка</option>
                         <option value="Реле-свет">Реле-свет</option>
-                        <option value="Датчик температуры">Датчик температуры</option>
-                        <option value="Датчик газа">Датчик газа</option>
+                        <option value="Сенсор">Сенсор</option>
                     </select>
                     <div>
                         <input id="edit-left" class="input-field" type="number" value="" oninput="UpdateMapParameter(this, 'left')" placeholder="Left..." style="margin-bottom: 10px; width: 92px;">
@@ -220,7 +220,10 @@
             document.querySelector('#copyright').innerHTML = 'Copyright &copy; 2020-' + date.getFullYear() + ', СтримХатаHiTech';
             setInterval(function() {
               UpdageTimeAgo();
-            }, 5000);
+            }, 5 * 1000);
+            setInterval(function() {
+              UpdageSensorData();
+            }, 3 * 60 * 1000);
         }
     </script>
 

@@ -1,4 +1,5 @@
 from flask import render_template, request, jsonify
+import json
 import requests
 from mysqlhelper import DBConnection
 from jobshelper import CronManager
@@ -42,7 +43,7 @@ class Api():
 			value_relay = request_data['value']
 			self.logger.info('--> [IP(%s) SWITCH] try set value = %s' % (ip_dev, value_relay))
 			try:
-				requests.get('http://' + ip_dev + '/relay?value=' + value_relay)
+				requests.get('http://%s/relay?value=%s' % (ip_dev, value_relay))
 			except requests.exceptions.ConnectionError:
 				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
 				return 'error-connection-ip'
@@ -50,15 +51,15 @@ class Api():
 				self.logger.info('[+] [IP(%s) SWITCH] set value = %s' % (ip_dev, value_relay))
 				return 'good'
 
-		#if module_type == 'sensor':
-			# ip_dev = request_data['ip']
-			# self.logger.info('--> [IP(%s) SENSOR] try get value' % (ip_dev))
-			# try:
-			#     requests.get('http://' + ip_dev + '/relay?value=' + value_relay)
-			# except requests.exceptions.ConnectionError:
-			#     return 'error-connection-ip'
-			# else:
-			# return 'null' + ip_dev
+		if module_type == 'sensor':
+			ip_dev = request_data['ip']
+			self.logger.info('--> [IP(%s) SENSOR] try get value' % (ip_dev))
+			try:
+				responce = requests.get('http://%s/info' % ip_dev)
+				return '[%s]' % responce.text
+			except requests.exceptions.ConnectionError:
+				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
+				return 'error-connection-ip'
 
 	def root(self):
 		"""
