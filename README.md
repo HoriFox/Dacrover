@@ -1,9 +1,11 @@
-# SmartHome Api
-### Локальный сервер обработки операций умного дома
+<img src="https://github.com/HoriFox/SmartHomeCentralDoc/blob/main/gitimg/dacrover_logo.png" width="500">
 
-***
-### Схема системы
-![Схема](https://github.com/HoriFox/SmartHomeApi/blob/master/gitimg/Схема.png)
+## Dacrover - Локальный сервер обработки операций умного дома
 
-### Интерфейс
-![Интерфейс](https://github.com/HoriFox/SmartHomeApi/blob/master/gitimg/Интерфейс.png)
+## Схема
+![Схема](https://github.com/HoriFox/SmartHomeCentralDoc/blob/main/gitimg/system.png)
+
+## Интерфейс
+![Интерфейс](https://github.com/HoriFox/SmartHomeCentralDoc/blob/main/gitimg/dacrover-gui/1.jpg)
+![Интерфейс](https://github.com/HoriFox/SmartHomeCentralDoc/blob/main/gitimg/dacrover-gui/2.jpg)
+![Интерфейс](https://github.com/HoriFox/SmartHomeCentralDoc/blob/main/gitimg/dacrover-gui/3.jpg)
