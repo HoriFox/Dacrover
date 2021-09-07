@@ -237,7 +237,6 @@ function UpdageTimeAgo() {
 function UpdageSensorData() {
     for(var sensorIp in sensorsDict) {
         var sensorModuleId = sensorsDict[sensorIp];
-        console.log(sensorIp + ' ' + sensorModuleId)
         SendRequestSensor(sensorIp, sensorModuleId);
     }
 }
@@ -300,7 +299,11 @@ function SendRequestSensor(ip, id_module_block) {
             if(xhr.status == 200) {
                 var data = undefined;
             	if (xhr.responseText != 'error-connection-ip') {
-                    data = JSON.parse(xhr.responseText)[0];
+                    try {
+                        data = JSON.parse(xhr.responseText)[0];
+                    } catch (e) {
+                        data = 'error-syntax'
+                    }
             	}
                 var sensor_data = document.querySelector('#' + id_module_block).querySelector('#sensor-data');
                 UpdateSensorData(data, sensor_data);
@@ -314,14 +317,18 @@ function SendRequestSensor(ip, id_module_block) {
 function UpdateSensorData(data, sensor_data) {
     htmlCode = '';
     if (data != undefined) {
-        if (data.temperature != undefined) {
-            htmlCode += `Температура: ` + data.temperature + '°<br>'
-        }
-        if (data.humidity != undefined) {
-            htmlCode += `Влажность: ` + data.humidity + '%<br>'
-        }
-        if (data.pir_artive != undefined) {
-            htmlCode += `Движение: ` + data.pir_artive + '<br>'
+        if (data == 'error-syntax') {
+            htmlCode += `Ошибка сопряжения`;
+        } else {
+            if (data.temperature != undefined) {
+                htmlCode += `Температура: ` + data.temperature + '°C<br>'
+            }
+            if (data.humidity != undefined) {
+                htmlCode += `Влажность: ` + data.humidity + '%<br>'
+            }
+            if (data.pir_artive != undefined) {
+                htmlCode += `Движение: ` + data.pir_artive + '<br>'
+            }
         }
     } else {
         htmlCode += `Сенсор не отвечает`;
