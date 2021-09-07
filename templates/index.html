@@ -41,11 +41,10 @@
                 </div>
             </div>
 
-            <div>
-                <div style="font-size: 20px; padding-bottom: 15px;">Квартира</div>             
-                <div class="item-module" style="background-color:#e25d5d; color: white; cursor: pointer;margin-bottom: 5px;">
-                    <div style="display: inline-block; padding: 4px;font-size: 14px;border-radius: 5px;" onclick="ChangeStatePositionMarker(this)">Переместить маркеры</div>
-                </div>
+            <div style="font-size: 20px; padding-bottom: 15px;">
+                Квартира
+                <img class="item-image" src="/static/img/edit.png" style="height: 20px; width: 20px; padding: 0 0 0 10px; vertical-align: middle; cursor: pointer;" onclick="ChangeStatePositionMarker(this)">
+                <div id="edit-info" style="display:none;font-size: 14px;color: #a0a0a0;padding-top: 10px;">Перемещайте маркеры с помощью мыши</div>
             </div>
 
             <div id="container-map" style="background-image: url(/static/img/map/map.png); background-position: center center; background-repeat: no-repeat; background-size: contain; width: 400px; height: 400px; background-color: #f3f3f3; border-radius: 10px; margin-bottom: 30px; position: relative;">

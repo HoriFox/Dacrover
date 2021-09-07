@@ -664,14 +664,14 @@ function UpdateMapParameter(element, nameElement) {
 isChangePositionMarker = false
 function ChangeStatePositionMarker(element) {
     if (isChangePositionMarker) {
-        element.innerHTML = "Переместить маркеры";
-        element.style['background-color'] = "#e25d5d";
+        element.parentNode.querySelector('#edit-info').style.display = "none";
+        element.src = "/static/img/edit.png";
         ResetSelect();
         SavePositionMarker();
         isChangePositionMarker = false;
     } else {
-        element.innerHTML = "Сохранить";
-        element.style['background-color'] = "#67d06d";
+        element.parentNode.querySelector('#edit-info').style.display = "block";
+        element.src = "/static/img/save.png";
         isChangePositionMarker = true;
     }
 }
