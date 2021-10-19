@@ -5,7 +5,9 @@ class DBConnection:
         self.connect = pymysql.connect(**kwargs)
 
     def __del__(self):
-        self.connect.close()
+        if hasattr(self, 'connect') and self.connect:
+            # NOTE (m.kucherenko): if connection failed - object is not set
+            self.connect.close()
 
     def insert(self, table, is_replace = False, timestamp = None, **kwargs):
         query = ''
