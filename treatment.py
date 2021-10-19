@@ -6,15 +6,43 @@ from jobshelper import CronManager
 from utils import *
 
 class Api():
-	def __init__(self, config, logger):
+	def __init__(self, config, logger, consul):
 		self.api_config = config
 		self.logger = logger
+		self.consul = consul
 		# Получаем данные по планам и запускаем менеджер работы с планами
 		plan_list, _ = self.data_transfer({'function':'get_list_plan'})
 		if config['enable_cron']:
 			self.cron_manager = CronManager(self, plan_list, self.api_config, self.logger)
 		else:
 			self.cron_manager = None
+
+	def healthcheck(self):
+		"""
+		ROUTE 0
+		Проведение самодиагностики 2хх - все хорошо, 5xx - что-то сломалось
+		"""
+		ok_mark = 'OK'
+		failed_mark = 'FAILED'
+
+		try:
+			nodes = json.loads(self.consul.agent.members())
+			consul_status = ok_mark
+		except Exception as err:
+			nodes = None
+			consul_status = failed_mark
+			self.logger.error('Failed to get consul members: {}'.format(err))
+		
+		health_status = {
+			'db_connection': ok_mark,
+			'sensors': ok_mark,
+			'consul': consul_status,
+		}
+		if all(module == ok_mark for module in health_status.values()):
+			status_code = 200
+		else:
+			status_code = 500
+		return jsonify({'nodes': nodes, 'health': health_status}), status_code
 
 	def run_api(self, _request = None):
 		"""
