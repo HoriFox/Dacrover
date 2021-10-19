@@ -35,6 +35,9 @@ class FlaskServer (Flask):
 			"consul_host": "127.0.0.1",
 			"consul_port": "8500",
 			"consul_interval": "30s",
+			"consul_service_name": "dacrover",
+			"consul_service_id": "dacrover-0",
+			"consul_tags": ["omega", "dacrover"],
 			"consul_httpcheck": "http://{}:{}/healthcheck"
 		}
 		load_status = True
@@ -70,15 +73,15 @@ class FlaskServer (Flask):
 	def register_service(self):
 		host = self.api_config['dacrover_host']
 		port = self.api_config['dacrover_port']
-		interval = self.api_config['consul_interval']
 		check_tpl = self.api_config['consul_httpcheck']
 		try:
 			self.consul.agent.service.register(
-				'dacrover',
+				name=self.api_config['consul_service_name'],
+				service_id=self.api_config['consul_service_id'],
 				address=host,
 				port=port,
-				tags=['omega', 'dacrover'],
-				interval=interval,
+				tags=self.api_config['consul_tags'],
+				interval=self.api_config['consul_interval'],
 				httpcheck=check_tpl.format(host, port)
 			)
 		except Exception as err:

@@ -24,9 +24,10 @@ class Api():
 		"""
 		ok_mark = 'OK'
 		failed_mark = 'FAILED'
+		service_name = self.api_config['consul_service_name']
 
 		try:
-			nodes = json.loads(self.consul.agent.members())
+			service = json.loads(self.consul.catalog.service(service_name))
 			consul_status = ok_mark
 		except Exception as err:
 			nodes = None
@@ -42,7 +43,7 @@ class Api():
 			status_code = 200
 		else:
 			status_code = 500
-		return jsonify({'nodes': nodes, 'health': health_status}), status_code
+		return jsonify({'service': service, 'health': health_status}), status_code
 
 	def run_api(self, _request = None):
 		"""
