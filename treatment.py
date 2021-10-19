@@ -11,7 +11,10 @@ class Api():
 		self.logger = logger
 		# Получаем данные по планам и запускаем менеджер работы с планами
 		plan_list, _ = self.data_transfer({'function':'get_list_plan'})
-		self.cron_manager = CronManager(self, plan_list, self.api_config, self.logger)
+		if config['enable_cron']:
+			self.cron_manager = CronManager(self, plan_list, self.api_config, self.logger)
+		else:
+			self.cron_manager = None
 
 	def run_api(self, _request = None):
 		"""
@@ -126,14 +129,16 @@ class Api():
 									ModuleIp=request_data['ip'],
 									PlanDays=request_data['days'],
 									PlanTime=request_data['time'])
-			self.cron_manager.create_plan(str(id_plan), request_data['days'],
+			if self.cron_manager:
+				self.cron_manager.create_plan(str(id_plan), request_data['days'],
 										request_data['time'], 'relay', request_data['ip'])
 			return query, False
 
 		if function == 'delete_plan':
 			id_plan = request_data['id']
 			link_bd.delete('plans', '`PlanId` = ' + id_plan)
-			self.cron_manager.delete_plan(str(id_plan))
+			if self.cron_manager:
+				self.cron_manager.delete_plan(str(id_plan))
 			return 'good', False
 
 		if function == 'get_list_reminder':

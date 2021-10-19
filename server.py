@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask
 import logging
 import sys
@@ -23,6 +25,7 @@ class FlaskServer (Flask):
 			"port_mysql": 3306,
 			"database_mysql": "dacrover",
 			"dacrover_port": 4050,
+			"enable_cron": True,
 		}
 		load_status = True
 		try:
