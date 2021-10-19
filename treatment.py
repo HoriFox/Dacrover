@@ -26,12 +26,12 @@ class Api():
 		failed_mark = 'FAILED'
 		service_name = self.api_config['consul_service_name']
 
+		consul_status = failed_mark
 		try:
 			service = self.consul.catalog.service(service_name)
-			consul_status = ok_mark
+			if len(service) > 0:
+				consul_status = ok_mark
 		except Exception as err:
-			service = None
-			consul_status = failed_mark
 			self.logger.error('Failed to get consul members: {}'.format(err))
 		
 		health_status = {
@@ -43,7 +43,7 @@ class Api():
 			status_code = 200
 		else:
 			status_code = 500
-		return jsonify({'service': service, 'health': health_status}), status_code
+		return jsonify({'health': health_status}), status_code
 
 	def run_api(self, _request = None):
 		"""
