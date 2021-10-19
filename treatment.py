@@ -30,7 +30,7 @@ class Api():
 			service = self.consul.catalog.service(service_name)
 			consul_status = ok_mark
 		except Exception as err:
-			nodes = None
+			service = None
 			consul_status = failed_mark
 			self.logger.error('Failed to get consul members: {}'.format(err))
 		
@@ -56,11 +56,13 @@ class Api():
 		if module_type == 'relay':
 			# Если нам не передают ip, значит будем его определять
 			if 'ip' not in request_data:
-				link_bd = DBConnection(user=self.api_config['user_mysql'],
-									password=self.api_config['password_mysql'],
-									host=self.api_config['host_mysql'],
-									port=self.api_config['port_mysql'],
-									database=self.api_config['database_mysql'])
+				link_bd = DBConnection(
+					user=self.api_config['user_mysql'],
+					password=self.api_config['password_mysql'],
+					host=self.api_config['host_mysql'],
+					port=self.api_config['port_mysql'],
+					database=self.api_config['database_mysql']
+				)
 				relay_name = request_data['name']
 				ip_json = link_bd.select('modules', where="`ModuleName` LIKE '%" + relay_name + "%'", json=True)
 				if len(ip_json) == 0:
@@ -75,9 +77,10 @@ class Api():
 			value_relay = request_data['value']
 			self.logger.info('--> [IP(%s) SWITCH] try set value = %s' % (ip_dev, value_relay))
 			try:
-				requests.get('http://%s/relay?value=%s' % (ip_dev, value_relay))
-			except requests.exceptions.ConnectionError:
-				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
+				to = self.api_config['sensor_request_timeout']
+				requests.get('http://%s/relay?value=%s' % (ip_dev, value_relay), timeout=to)
+			except requests.exceptions.ConnectionError as err:
+				self.logger.warning('[!] [IP({}) SWITCH] warning: error-connection-ip: {}'.format(ip_dev, err))
 				return 'error-connection-ip'
 			else:
 				self.logger.info('[+] [IP(%s) SWITCH] set value = %s' % (ip_dev, value_relay))
@@ -87,10 +90,11 @@ class Api():
 			ip_dev = request_data['ip']
 			self.logger.info('--> [IP(%s) SENSOR] try get value' % (ip_dev))
 			try:
-				responce = requests.get('http://%s/info' % ip_dev)
+				to = self.api_config['sensor_request_timeout']
+				responce = requests.get('http://%s/info' % ip_dev, timeout=to)
 				return '[%s]' % responce.text
-			except requests.exceptions.ConnectionError:
-				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
+			except requests.exceptions.ConnectionError as err:
+				self.logger.warning('[!] [IP({}) SWITCH] warning: error-connection-ip: {}'.format(ip_dev, err))
 				return 'error-connection-ip'
 
 	def root(self):
@@ -119,11 +123,13 @@ class Api():
 		В зависимости от название функции выбираем нужный тип работы с данными.
 		return [данные],[is_json?]
 		"""
-		link_bd = DBConnection(user=self.api_config['user_mysql'],
-								password=self.api_config['password_mysql'],
-								host=self.api_config['host_mysql'],
-								port=self.api_config['port_mysql'],
-								database=self.api_config['database_mysql'])
+		link_bd = DBConnection(
+			user=self.api_config['user_mysql'],
+			password=self.api_config['password_mysql'],
+			host=self.api_config['host_mysql'],
+			port=self.api_config['port_mysql'],
+			database=self.api_config['database_mysql']
+		)
 		function = request_data['function']
 
 		if function == 'get_list_module':
