@@ -27,7 +27,7 @@ class Api():
 		service_name = self.api_config['consul_service_name']
 
 		try:
-			service = json.loads(self.consul.catalog.service(service_name))
+			service = self.consul.catalog.service(service_name)
 			consul_status = ok_mark
 		except Exception as err:
 			nodes = None
