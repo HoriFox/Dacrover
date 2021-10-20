@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 from crontab import CronTab
 import pathlib
+
 
 # Use example crontab
 # cron.remove_all()
@@ -10,6 +13,7 @@ import pathlib
 # job.minute.every(1)
 # cron.write()
 
+
 class CronManager():
 	def __init__(self, api, plan_list, api_config, logger):
 		self.logger = logger
@@ -19,8 +23,9 @@ class CronManager():
 		# Очистку нужно проводить до выключения сервера!
 		self.cron.remove_all()
 		self.cron.write()
-		# При первом запуске подгружаем все задания в очередь
+		# Load plan when lauch
 		self.load_plan(plan_list)
+
 
 	def load_plan(self, plan_list):
 		if len(plan_list) != 0:
@@ -32,16 +37,14 @@ class CronManager():
 			self.logger.info(job)
 		self.logger.info('\n')
 
+
 	def create_plan(self, plan_id, plan_days, plan_time, module_type, module_ip):
 		# Clear plans to avoid duplication
 		self.delete_plan(plan_id)
 
 		self.logger.info('[!]Load plan:\n')
-		self.logger.info('[P]Id:', plan_id, '\n' +
-				'[P]Days:',  plan_days, '\n' +
-				'[P]Time:', plan_time, '\n' +
-				'[P]Type module:', module_type, '\n' +
-				'[P]Module ip', module_ip, '\n')
+		self.logger.info('[P]Id: %s\n[P]Days: %s\n[P]Time: %s\n[P]Type module: %s\n[P]Module ip %s\n' 
+								% (plan_id, plan_days, plan_time, module_type, module_ip))
 
 		week_list = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
 		# Convert days to number 0-6
@@ -84,7 +87,8 @@ class CronManager():
 		self.cron.remove_all(comment=id_job_end)
 		self.cron.write()
 
+
 	def on_exit(self):
 		pass
 		# self.scheduler.shutdown()
-		# self.logger.info('SERVER: Scheduler shutdown')
+		self.logger.info('SERVER: Scheduler shutdown')

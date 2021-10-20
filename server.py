@@ -8,6 +8,7 @@ from utils import *
 from flask.logging import default_handler
 from treatment import Api
 
+
 class FlaskServer (Flask):
 	def __init__(self, import_name, config_file):
 		super(FlaskServer, self).__init__(import_name)
@@ -90,7 +91,7 @@ class FlaskServer (Flask):
 				httpcheck=check_tpl.format(host, port)
 			)
 		except Exception as err:
-			self.logger.error('Failed to register consul service: {}'.format(err))
+			self.logger.error('Failed to register consul service: %s' % err)
 
 
 def create_app(config_file):

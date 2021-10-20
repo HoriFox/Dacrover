@@ -1,24 +1,28 @@
+# -*- coding: utf-8 -*-
+
 import pymysql
 from utils import *
 
 class DBConnection:
     def __init__(self, logger, **kwargs):
         self.logger = logger
-        self.connection_param = **kwargs
-        self.connect_db()
-        self.logger.debug("connection_status" + connection_status)
+        self.param_connection = kwargs
+        self.open_connection()
 
-    def connect_db(self):
-        self.connect = pymysql.connect(self.connection_param, autocommit=True)
+
+    def open_connection(self):
+        self.connect = pymysql.connect(**(self.param_connection), autocommit=True)
         self.cursor = self.connect.cursor()
 
-    def connection_status(self):
-        return self.cursor.connection.open
 
-    def __del__(self):
+    def is_connection_open(self):
+        return self.connect.open
+
+
+    def close_connection(self):
         if hasattr(self, 'connect') and self.connect:
-            # if connection failed - object is not set
             self.connect.close()
+
 
     def insert(self, table, is_replace = False, timestamp = None, **kwargs):
         query = ''
@@ -35,11 +39,10 @@ class DBConnection:
                 query += " ON DUPLICATE KEY UPDATE %s" % (placeholders_update)
             self.cursor.execute(query, list(kwargs.values()))
         except pymysql.Error as err:
-            self.logger.error('Error', err)
-        # else:
-        #     self.connect.commit()
+            self.logger.error('Error %s' % err) if self.logger else eprint('Error', err)
 
         return query
+
 
     def select(self, table, where = None, json = False):
         result = ''
@@ -53,15 +56,18 @@ class DBConnection:
             if json:
                 result = [dict((self.cursor.description[i][0], value) for i, value in enumerate(row)) for row in result]
         except pymysql.Error as err:
-            self.logger.error('Error', err)
+            self.logger.error('Error %s' % err) if self.logger else eprint('Error', err)
 
         return result
+
 
     def delete(self, table, where):
         try:
             query = "DELETE FROM %s WHERE %s" % (table, where)
             self.cursor.execute(query)
         except pymysql.Error as err:
-            self.logger.error('Error', err)
-        # else:
-        #     self.connect.commit()
+            self.logger.error('Error %s' % err) if self.logger else eprint('Error', err)
+
+    
+    def __del__(self):
+        self.close_connection()

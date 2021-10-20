@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import json
 import sys
 
+
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 def load_json(path):
     with open(path, 'r') as f:
