@@ -22,6 +22,7 @@ class FlaskServer (Flask):
 		)
 		self.api = Api(self.api_config, self.logger, self.consul)
 
+
 	def load_config(self, path):
 		config = {
 			"user_mysql": "dacroveruser",
@@ -46,14 +47,15 @@ class FlaskServer (Flask):
 				data = load_json(path)
 				config.update(data)
 		except Exception as err:
-			eprint('\n[!]Cant load config from %s: %s' % (path, err))
-			eprint('[!]Load default config\n')
+			self.logger.info('\n[!]Cant load config from %s: %s' % (path, err))
+			self.logger.info('[!]Load default config\n')
 			load_status = False
 		if load_status:
-			eprint('\n[!]Load config from %s\n' % path)
+			self.logger.info('\n[!]Load config from %s\n' % path)
 		self.show_load_log('config', config)
-		eprint('')
+		self.logger.info('')
 		return config
+
 
 	def show_load_log(self, name, config):
 		"""
@@ -62,13 +64,15 @@ class FlaskServer (Flask):
 		"""
 		for key in config:
 			value = hash(config[key]) if ('password' in key) else config[key]
-			eprint('[C]%s = %s' % (key, value))
+			self.logger.info('[C]%s = %s' % (key, value))
+
 
 	def setup_route(self):
 		self.add_url_rule('/healthcheck', "healthcheck", self.api.healthcheck, methods=['GET'])
 		self.add_url_rule('/', "run_api", self.api.run_api, methods=['POST'])
 		self.add_url_rule('/', "root", self.api.root, methods=['GET'])
 		self.add_url_rule('/data', "data_transfer_request", self.api.data_transfer_request, methods=['POST'])
+
 
 	def register_service(self):
 		host = self.api_config['dacrover_host']
@@ -86,6 +90,7 @@ class FlaskServer (Flask):
 			)
 		except Exception as err:
 			self.logger.error('Failed to register consul service: {}'.format(err))
+
 
 def create_app(config_file):
 	app = FlaskServer('FlaskServer', config_file)

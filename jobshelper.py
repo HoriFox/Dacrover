@@ -1,8 +1,7 @@
 from crontab import CronTab
 import pathlib
-from utils import *
 
-# Использование crontab
+# Use example crontab
 # cron.remove_all()
 # for job in cron:
 #     print(job)
@@ -28,30 +27,30 @@ class CronManager():
 			for elem in plan_list:
 				self.create_plan(str(elem['PlanId']), elem['PlanDays'],
 									elem['PlanTime'], 'relay', elem['ModuleIp'])
-		eprint('Список заданий в cron:')
+		self.logger.info('List of jobs in cron:')
 		for job in self.cron:
-			eprint(job)
-		eprint('\n')
+			self.logger.info(job)
+		self.logger.info('\n')
 
 	def create_plan(self, plan_id, plan_days, plan_time, module_type, module_ip):
-		# Чтобы избежать дублирование - чистим
+		# Clear plans to avoid duplication
 		self.delete_plan(plan_id)
 
-		print('[!]Load plan:\n')
-		print('[P]Id:', plan_id, '\n' +
+		self.logger.info('[!]Load plan:\n')
+		self.logger.info('[P]Id:', plan_id, '\n' +
 				'[P]Days:',  plan_days, '\n' +
 				'[P]Time:', plan_time, '\n' +
 				'[P]Type module:', module_type, '\n' +
 				'[P]Module ip', module_ip, '\n')
 
 		week_list = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
-		# Переводим указанные дни недели в числа 0-6
+		# Convert days to number 0-6
 		day_of_week = ','.join([str(week_list.index(plan_day))
 								for plan_day in plan_days.split(' ')])
 		time_all = plan_time.split(' ')
 		hour_start, minute_start = time_all[0].split(':')
 
-		#Стартовое время
+		# Start time
 		id_job_start = plan_id + 'start'
 		job = self.cron.new(comment=id_job_start,
 							command='python3 %s/jobworker.py %s %s %s %s' % 
@@ -62,7 +61,7 @@ class CronManager():
 													1))
 		job.setall(minute_start, hour_start, None, None, day_of_week)
 
-		# Если есть конечное время
+		# if exist finish time - set it
 		if len(time_all) == 2:
 			hour_end, minute_end = time_all[1].split(':')
 			id_job_end = plan_id + 'end'

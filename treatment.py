@@ -10,12 +10,13 @@ class Api():
 		self.api_config = config
 		self.logger = logger
 		self.consul = consul
-		# Получаем данные по планам и запускаем менеджер работы с планами
-		plan_list, _ = self.data_transfer({'function':'get_list_plan'})
+		# Get data plans and start plans manager 
+		plan_list, _ = self._data_transfer({'function':'get_list_plan'})
 		if config['enable_cron']:
 			self.cron_manager = CronManager(self, plan_list, self.api_config, self.logger)
 		else:
 			self.cron_manager = None
+
 
 	def healthcheck(self):
 		"""
@@ -26,6 +27,11 @@ class Api():
 		failed_mark = 'FAILED'
 		service_name = self.api_config['consul_service_name']
 
+		# Check db connection
+
+		# Check sensors
+
+		# Check consul
 		try:
 			service = self.consul.catalog.service(service_name)
 			consul_status = ok_mark
@@ -39,11 +45,9 @@ class Api():
 			'sensors': ok_mark,
 			'consul': consul_status,
 		}
-		if all(module == ok_mark for module in health_status.values()):
-			status_code = 200
-		else:
-			status_code = 500
+		status_code = 200 if all(module == ok_mark for module in health_status.values()) else 500
 		return jsonify({'service': service, 'health': health_status}), status_code
+
 
 	def run_api(self, _request = None):
 		"""
@@ -54,9 +58,9 @@ class Api():
 		request_data = _request if (_request != None) else request.json
 		module_type = request_data['type']
 		if module_type == 'relay':
-			# Если нам не передают ip, значит будем его определять
+			# if ip = None --> find ip
 			if 'ip' not in request_data:
-				link_bd = DBConnection(user=self.api_config['user_mysql'],
+				link_bd = DBConnection(self.logger, user=self.api_config['user_mysql'],
 									password=self.api_config['password_mysql'],
 									host=self.api_config['host_mysql'],
 									port=self.api_config['port_mysql'],
@@ -65,7 +69,7 @@ class Api():
 				ip_json = link_bd.select('modules', where="`ModuleName` LIKE '%" + relay_name + "%'", json=True)
 				if len(ip_json) == 0:
 					ip_json = link_bd.select('modules', where="`ModuleName` LIKE '%" + relay_name[:-1] + "%'", json=True)
-				# Если нет уникального найденного устройства, то сбрасываем
+				# No unique device --> return
 				if len(ip_json) != 1: 
 					return 'didnt-find-unique-device' 
 				ip_dev = ip_json[0]['ModuleIp']
@@ -93,6 +97,7 @@ class Api():
 				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
 				return 'error-connection-ip'
 
+
 	def root(self):
 		"""
 		ROUTE 2
@@ -100,26 +105,28 @@ class Api():
 		"""
 		return render_template('index.html')
 
+
 	def data_transfer_request(self):
 		"""
 		ROUTE 3
 		Котейнер метода выдачи и редактирования данных.
-		Данный метод является оболочкой data_transfer т.к. тот содержит
+		Данный метод является оболочкой _data_transfer т.к. тот содержит
 		множество return с разными типами вывода. Здесь мы узнаём тип
 		и отправляем соотвествующий ответ.
 		"""
 		self.logger.info('NEW API REQUEST -->')
 		request_data = request.json
 		self.logger.debug('Request data: ', request_data)
-		data, isjson = self.data_transfer(request_data)
+		data, isjson = self._data_transfer(request_data)
 		return jsonify(data) if isjson else data
 
-	def data_transfer(self, request_data):
+
+	def _data_transfer(self, request_data):
 		"""
 		В зависимости от название функции выбираем нужный тип работы с данными.
 		return [данные],[is_json?]
 		"""
-		link_bd = DBConnection(user=self.api_config['user_mysql'],
+		link_bd = DBConnection(self.logger, user=self.api_config['user_mysql'],
 								password=self.api_config['password_mysql'],
 								host=self.api_config['host_mysql'],
 								port=self.api_config['port_mysql'],
