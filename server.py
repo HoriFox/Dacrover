@@ -33,6 +33,7 @@ class FlaskServer (Flask):
 			"dacrover_host": "127.0.0.1", # NOT a binding address
 			"dacrover_port": 4050,
 			"enable_cron": True,
+			"sensor_request_timeout": 3,
 			"consul_host": "127.0.0.1",
 			"consul_port": "8500",
 			"consul_interval": "30s",

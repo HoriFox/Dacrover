@@ -34,10 +34,9 @@ class Api():
 		# Check consul
 		try:
 			service = self.consul.catalog.service(service_name)
-			consul_status = ok_mark
+			if len(service) > 0:
+				consul_status = ok_mark
 		except Exception as err:
-			nodes = None
-			consul_status = failed_mark
 			self.logger.error('Failed to get consul members: {}'.format(err))
 		
 		health_status = {
@@ -45,8 +44,9 @@ class Api():
 			'sensors': ok_mark,
 			'consul': consul_status,
 		}
+
 		status_code = 200 if all(module == ok_mark for module in health_status.values()) else 500
-		return jsonify({'service': service, 'health': health_status}), status_code
+		return jsonify({'health': health_status}), status_code
 
 
 	def run_api(self, _request = None):
@@ -79,9 +79,10 @@ class Api():
 			value_relay = request_data['value']
 			self.logger.info('--> [IP(%s) SWITCH] try set value = %s' % (ip_dev, value_relay))
 			try:
-				requests.get('http://%s/relay?value=%s' % (ip_dev, value_relay))
-			except requests.exceptions.ConnectionError:
-				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
+				to = self.api_config['sensor_request_timeout']
+				requests.get('http://%s/relay?value=%s' % (ip_dev, value_relay), timeout=to)
+			except requests.exceptions.ConnectionError as err:
+				self.logger.warning('[!] [IP({}) SWITCH] warning: error-connection-ip: {}'.format(ip_dev, err))
 				return 'error-connection-ip'
 			else:
 				self.logger.info('[+] [IP(%s) SWITCH] set value = %s' % (ip_dev, value_relay))
@@ -91,10 +92,11 @@ class Api():
 			ip_dev = request_data['ip']
 			self.logger.info('--> [IP(%s) SENSOR] try get value' % (ip_dev))
 			try:
-				responce = requests.get('http://%s/info' % ip_dev)
+				to = self.api_config['sensor_request_timeout']
+				responce = requests.get('http://%s/info' % ip_dev, timeout=to)
 				return '[%s]' % responce.text
-			except requests.exceptions.ConnectionError:
-				self.logger.warning('[!] [IP(%s) SWITCH] warning: error-connection-ip' % (ip_dev))
+			except requests.exceptions.ConnectionError as err:
+				self.logger.warning('[!] [IP({}) SWITCH] warning: error-connection-ip: {}'.format(ip_dev, err))
 				return 'error-connection-ip'
 
 
