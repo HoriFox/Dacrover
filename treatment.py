@@ -48,8 +48,10 @@ class Api():
 			db_connection_status = ok_mark
 
 		# Check sensors
-		# TODO (THI)
-		sensors_status = ok_mark
+		data = self.run_api(_request = {'type': 'sensor', 'ip': '%s:%s' 
+		% (self.api_config['dacrover_host'], self.api_config['dacrover_port'])}, selfcheck = True)
+		if int(json.loads(data[1:-1])['temperature']) == 20:
+			sensors_status = ok_mark	
 
 		# Check consul
 		try:
@@ -69,9 +71,24 @@ class Api():
 		return jsonify({'health': health_status}), status_code
 
 
-	def run_api(self, _request = None):
+	def sensor_emulator(self):
 		"""
 		ROUTE 1
+		Эмулятор ответов сенсора
+		"""
+		return jsonify({"temperature": "20",
+						 "temperature_err_mody": "0",
+						 "humidity": "20",
+						 "humidity_err_mody": "0",
+						 "pir_artive": "0",
+						 "callback": "null",
+						 "flashChipSize": "1048576",
+						 "real": "1048576"})
+
+
+	def run_api(self, _request = None, selfcheck = False):
+		"""
+		ROUTE 2
 		Запуск методы API, а именно выполнение действий над устройствами
 		"""
 		self.logger.info('NEW API REQUEST -->')
@@ -112,7 +129,9 @@ class Api():
 			self.logger.info('--> [IP(%s) SENSOR] try get value' % (ip_dev))
 			try:
 				to = self.api_config['sensor_request_timeout']
-				responce = requests.get('http://%s/info' % ip_dev, timeout=to)
+				url_sensor = 'http://%s/info' % ip_dev if not selfcheck else 'http://%s/sensor_emulator' % ip_dev
+				self.logger.debug(url_sensor)
+				responce = requests.get(url_sensor, timeout=to)
 				return '[%s]' % responce.text
 			except requests.exceptions.ConnectionError as err:
 				self.logger.warning('[!] [IP(%s) SENSOR] warning: error-connection-ip: %s' % (ip_dev, err))
@@ -124,7 +143,7 @@ class Api():
 
 	def root(self):
 		"""
-		ROUTE 2
+		ROUTE 3
 		Выдача по запросу страницы управления
 		"""
 		return render_template('index.html')
@@ -132,7 +151,7 @@ class Api():
 
 	def data_transfer_request(self):
 		"""
-		ROUTE 3
+		ROUTE 4
 		Котейнер метода выдачи и редактирования данных.
 		Данный метод является оболочкой _data_transfer т.к. тот содержит
 		множество return с разными типами вывода. Здесь мы узнаём тип
