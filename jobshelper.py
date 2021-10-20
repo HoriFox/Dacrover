@@ -2,6 +2,7 @@
 
 from crontab import CronTab
 import pathlib
+import atexit
 
 
 # Use example crontab
@@ -25,6 +26,7 @@ class CronManager():
 		self.cron.write()
 		# Load plan when lauch
 		self.load_plan(plan_list)
+		atexit.register(self.on_exit)
 
 
 	def load_plan(self, plan_list):
@@ -89,6 +91,7 @@ class CronManager():
 
 
 	def on_exit(self):
-		pass
-		# self.scheduler.shutdown()
-		self.logger.info('SERVER: Scheduler shutdown')
+		self.logger.info('exit handler check stop service')
+		if hasattr(self, 'cron') and self.cron:
+			self.cron.remove_all()
+		self.logger.info('finish exit operation crontab')

@@ -7,6 +7,7 @@ import consulate
 from utils import *
 from flask.logging import default_handler
 from treatment import Api
+from prometheus_flask_exporter import PrometheusMetrics
 
 
 class FlaskServer (Flask):
@@ -71,6 +72,7 @@ class FlaskServer (Flask):
 
 	def setup_route(self):
 		self.add_url_rule('/healthcheck', "healthcheck", self.api.healthcheck, methods=['GET'])
+		# self.add_url_rule('/metrics', "metrics", self.api.metrics, methods=['GET'])
 		self.add_url_rule('/', "run_api", self.api.run_api, methods=['POST'])
 		self.add_url_rule('/', "root", self.api.root, methods=['GET'])
 		self.add_url_rule('/data', "data_transfer_request", self.api.data_transfer_request, methods=['POST'])
@@ -98,4 +100,5 @@ def create_app(config_file):
 	app = FlaskServer('FlaskServer', config_file)
 	app.setup_route()
 	app.register_service()
+	metrics = PrometheusMetrics(app)
 	return app

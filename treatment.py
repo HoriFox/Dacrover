@@ -121,6 +121,7 @@ class Api():
 				self.logger.warning('[!] [IP(%s) SENSOR] warning: read-timeout (error-connection-ip): %s' % (ip_dev, err))
 				return 'error-connection-ip'
 
+
 	def root(self):
 		"""
 		ROUTE 2
