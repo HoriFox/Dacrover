@@ -3,14 +3,15 @@
 from flask import Flask
 import logging
 import sys
-import consulate
 from utils import *
 from flask.logging import default_handler
 from treatment import Api
 from prometheus_flask_exporter import PrometheusMetrics
+from consulhelper import ConsulThread
 
 
 class FlaskServer (Flask):
+
 	def __init__(self, import_name, config_file):
 		super(FlaskServer, self).__init__(import_name)
 		self.api_config = self.load_config(config_file)
@@ -18,11 +19,8 @@ class FlaskServer (Flask):
 		self.logger.removeHandler(default_handler)
 		self.logger.addHandler(self.handler)
 		self.logger.setLevel(logging.DEBUG)
-		self.consul = consulate.Consul(
-			host=self.api_config['consul_host'],
-			port=self.api_config['consul_port'],
-		)
-		self.api = Api(self.api_config, self.logger, self.consul)
+		self.consul_thread = ConsulThread(self.api_config, self.logger)
+		self.api = Api(self.api_config, self.logger, self.consul_thread)
 
 
 	def load_config(self, path):
@@ -78,27 +76,13 @@ class FlaskServer (Flask):
 		self.add_url_rule('/data', "data_transfer_request", self.api.data_transfer_request, methods=['POST'])
 
 
-	def register_service(self):
-		host = self.api_config['dacrover_host']
-		port = self.api_config['dacrover_port']
-		check_tpl = self.api_config['consul_httpcheck']
-		try:
-			self.consul.agent.service.register(
-				name=self.api_config['consul_service_name'],
-				service_id=self.api_config['consul_service_id'],
-				address=host,
-				port=port,
-				tags=self.api_config['consul_tags'],
-				interval=self.api_config['consul_interval'],
-				httpcheck=check_tpl.format(host, port)
-			)
-		except Exception as err:
-			self.logger.error('Failed to register consul service: %s' % err)
+	def consul_service_run(self):
+		self.consul_thread.run()
 
 
 def create_app(config_file):
 	app = FlaskServer('FlaskServer', config_file)
 	app.setup_route()
-	app.register_service()
+	app.consul_service_run()
 	metrics = PrometheusMetrics(app)
 	return app

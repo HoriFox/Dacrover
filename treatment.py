@@ -4,20 +4,23 @@ from flask import render_template, request, jsonify
 import json
 import requests
 from mysqlhelper import DBConnection
-from jobshelper import CronManager
+from cronhelper import CronThread
 from utils import *
 
 class Api():
-	def __init__(self, config, logger, consul):
+	def __init__(self, config, logger, consul_thread):
 		self.api_config = config
 		self.logger = logger
-		self.consul = consul
+		self.consul = consul_thread.consul
 		# Get data plans and start plans manager 
-		plan_list, _ = self._data_transfer({'function':'get_list_plan'})
-		if config['enable_cron']:
-			self.cron_manager = CronManager(self, plan_list, self.api_config, self.logger)
-		else:
-			self.cron_manager = None
+		self.cron_thread = CronThread(self, self.api_config, self.logger) if config['enable_cron'] else None
+		# Set cron callback new master up
+		consul_thread.set_on_change_leader_callback(self.cron_service_run)
+
+
+	def cron_service_run(self):
+		if self.cron_thread:
+			self.cron_thread.run()
 
 
 	def connect_db(self):
@@ -48,6 +51,7 @@ class Api():
 			db_connection_status = ok_mark
 
 		# Check sensors
+		sensors_status = ok_mark
 		data = self.run_api(_request = {'type': 'sensor', 'ip': '%s:%s' 
 		% (self.api_config['dacrover_host'], self.api_config['dacrover_port'])}, selfcheck = True)
 		if int(json.loads(data[1:-1])['temperature']) == 20:
@@ -130,7 +134,6 @@ class Api():
 			try:
 				to = self.api_config['sensor_request_timeout']
 				url_sensor = 'http://%s/info' % ip_dev if not selfcheck else 'http://%s/sensor_emulator' % ip_dev
-				self.logger.debug(url_sensor)
 				responce = requests.get(url_sensor, timeout=to)
 				return '[%s]' % responce.text
 			except requests.exceptions.ConnectionError as err:
@@ -204,16 +207,16 @@ class Api():
 									ModuleIp=request_data['ip'],
 									PlanDays=request_data['days'],
 									PlanTime=request_data['time'])
-			if self.cron_manager:
-				self.cron_manager.create_plan(str(id_plan), request_data['days'],
+			if self.cron_thread:
+				self.cron_thread.create_plan(str(id_plan), request_data['days'],
 										request_data['time'], 'relay', request_data['ip'])
 			return query, False
 
 		if function == 'delete_plan':
 			id_plan = request_data['id']
 			link_bd.delete('plans', '`PlanId` = ' + id_plan)
-			if self.cron_manager:
-				self.cron_manager.delete_plan(str(id_plan))
+			if self.cron_thread:
+				self.cron_thread.delete_plan(str(id_plan))
 			return 'good', False
 
 		if function == 'get_list_reminder':
